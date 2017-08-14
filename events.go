@@ -15,8 +15,8 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	parts := strings.Split(strings.ToLower(msg), " ")
 	msgCommand := strings.Replace(parts[0], ".", "", 1)
 
-	_, ok := Commands[msgCommand]
-	if !ok {
-		return
+	c, ok := Commands[msgCommand]
+	if ok {
+		c.Handler(s, m)
 	}
 }
