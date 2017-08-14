@@ -3,7 +3,6 @@ package ping
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/omar-h/snorlax"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -26,7 +25,7 @@ func init() {
 }
 
 func ping(s *discordgo.Session, m *discordgo.MessageCreate) {
-	log.Info(m.Content)
+	s.ChannelMessageSend(m.ChannelID, "Pong! "+m.Author.Mention())
 }
 
 // GetModule returns the Module

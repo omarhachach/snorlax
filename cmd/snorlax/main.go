@@ -11,11 +11,11 @@ import (
 
 func main() {
 	var (
-		Token = flag.String("t", "", "Discord Bot Authentication Token")
+		token = flag.String("t", "", "Discord Bot Authentication Token")
 	)
 	flag.Parse()
 
-	discord, err := discordgo.New("Bot " + *Token)
+	discord, err := discordgo.New("Bot " + *token)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
