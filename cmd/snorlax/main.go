@@ -5,7 +5,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/helloworld"
+	"github.com/omar-h/snorlax/ping"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,5 +24,6 @@ func main() {
 	}
 	bot := snorlax.NewBot(discord)
 
-	bot.RegisterModule(helloworld.GetModule())
+	bot.RegisterModule(ping.GetModule())
+	bot.Start()
 }

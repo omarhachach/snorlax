@@ -37,14 +37,14 @@ func (s *Snorlax) RegisterModule(module Module) {
 		return
 	}
 
-	for k, command := range module.Commands {
-		existingCommand, commandExist := Commands[k]
+	for key, command := range module.Commands {
+		existingCommand, commandExist := Commands[key]
 		if commandExist {
 			log.Error("Failed to load module: " + module.Name +
-				".\nModule " + existingCommand.ModuleName + "has already registered command: " + command.Trigger)
+				".\nModule " + existingCommand.ModuleName + "has already registered command: " + key)
 			return
 		}
-		Commands[k] = command
+		Commands[key] = command
 	}
 
 	s.Modules[module.Name] = module

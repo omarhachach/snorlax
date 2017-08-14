@@ -17,5 +17,5 @@ type Command struct {
 	Name       string
 	Desc       string
 	ModuleName string
-	Handler    func(*discordgo.Session, *discordgo.Message)
+	Handler    func(*discordgo.Session, *discordgo.MessageCreate)
 }

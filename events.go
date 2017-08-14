@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	log "github.com/sirupsen/logrus"
 )
 
 func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -18,5 +19,8 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	c, ok := Commands[msgCommand]
 	if ok {
 		c.Handler(s, m)
+	} else {
+		log.Debug("Command does not exist")
 	}
+
 }
