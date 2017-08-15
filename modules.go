@@ -8,7 +8,7 @@ import (
 // This serves to make the bot modular and expandable.
 type Module struct {
 	Name       string
-	Commands   map[string]Command
+	Commands   map[string]*Command
 	RegisterOn map[string]interface{}
 }
 

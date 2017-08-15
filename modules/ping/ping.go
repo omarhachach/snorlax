@@ -6,13 +6,13 @@ import (
 )
 
 var (
-	commands   map[string]snorlax.Command
+	commands   map[string]*snorlax.Command
 	moduleName string
 )
 
 func init() {
 	moduleName = "Ping"
-	commands = make(map[string]snorlax.Command)
+	commands = make(map[string]*snorlax.Command)
 
 	pingCommand := snorlax.Command{
 		Name:       "ping",
@@ -21,7 +21,7 @@ func init() {
 		Handler:    ping,
 	}
 
-	commands[pingCommand.Name] = pingCommand
+	commands[pingCommand.Name] = &pingCommand
 }
 
 func ping(s *discordgo.Session, m *discordgo.MessageCreate) {

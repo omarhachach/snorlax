@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/omar-h/snorlax"
 	"github.com/omar-h/snorlax/modules/ping"
+	"github.com/omar-h/snorlax/modules/rolemanager"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,5 +26,6 @@ func main() {
 	bot := snorlax.NewBot(discord)
 
 	bot.RegisterModule(ping.GetModule())
+	bot.RegisterModule(rolemanager.GetModule())
 	bot.Start()
 }

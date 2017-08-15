@@ -10,7 +10,7 @@ import (
 
 var (
 	// Commands is a list of all the registered commands, and their assocated Command type.
-	Commands map[string]Command
+	Commands map[string]*Command
 )
 
 // Snorlax is the bot type.
@@ -21,7 +21,7 @@ type Snorlax struct {
 
 // NewBot returns a new bot type.
 func NewBot(discord *discordgo.Session) *Snorlax {
-	Commands = make(map[string]Command)
+	Commands = make(map[string]*Command)
 
 	return &Snorlax{
 		Discord: discord,
@@ -37,11 +37,12 @@ func (s *Snorlax) RegisterModule(module Module) {
 		return
 	}
 
-	for key, command := range module.Commands {
-		existingCommand, commandExist := Commands[key]
+	for _, command := range module.Commands {
+
+		existingCommand, commandExist := Commands[command.Name]
 		if commandExist {
 			log.Error("Failed to load module: " + module.Name +
-				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + key)
+				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + command.Name)
 			return
 		}
 
@@ -49,11 +50,14 @@ func (s *Snorlax) RegisterModule(module Module) {
 			existingAlias, aliasExist := Commands[command.Alias]
 			if aliasExist {
 				log.Error("Failed to load module: " + module.Name +
-					".\nModule " + existingAlias.ModuleName + "has already registered command/alias: " + key)
+					".\nModule " + existingAlias.ModuleName + "has already registered command/alias: " + command.Name)
 				return
 			}
+
+			Commands[command.Alias] = command
 		}
-		Commands[key] = command
+
+		Commands[command.Name] = command
 	}
 
 	s.Modules[module.Name] = module
