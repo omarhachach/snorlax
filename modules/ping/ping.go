@@ -21,7 +21,7 @@ func init() {
 		Handler:    ping,
 	}
 
-	commands["ping"] = pingCommand
+	commands[pingCommand.Name] = pingCommand
 }
 
 func ping(s *discordgo.Session, m *discordgo.MessageCreate) {

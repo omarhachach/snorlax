@@ -5,7 +5,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/ping"
+	"github.com/omar-h/snorlax/modules/ping"
 	log "github.com/sirupsen/logrus"
 )
 

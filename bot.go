@@ -41,8 +41,17 @@ func (s *Snorlax) RegisterModule(module Module) {
 		existingCommand, commandExist := Commands[key]
 		if commandExist {
 			log.Error("Failed to load module: " + module.Name +
-				".\nModule " + existingCommand.ModuleName + "has already registered command: " + key)
+				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + key)
 			return
+		}
+
+		if command.Alias != "" {
+			existingAlias, aliasExist := Commands[command.Alias]
+			if aliasExist {
+				log.Error("Failed to load module: " + module.Name +
+					".\nModule " + existingAlias.ModuleName + "has already registered command/alias: " + key)
+				return
+			}
 		}
 		Commands[key] = command
 	}
