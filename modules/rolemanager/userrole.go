@@ -39,12 +39,15 @@ func init() {
 	commands[removeAllRoles.Name] = &removeAllRoles
 }
 
+// setRoleHandler handles the setRole command, it will set a role for the specified user.
 func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
 	permissions, err := sess.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
+		s.Log.Debug(fmt.Sprintf("Set Role: Error getting user permissions: %v", err))
 		return
 	}
 
+	// Check if user has Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
 		msg := m.Content
@@ -52,6 +55,7 @@ func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.Me
 
 		// Check if there are 3 arguments.
 		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Set Role: Not enough arguments: %v", parts))
 			return
 		}
 
@@ -60,19 +64,25 @@ func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.Me
 		user, err := sess.User(userID)
 		if err != nil {
 			sess.ChannelMessageSend(m.ChannelID, "Username invalid.")
+			s.Log.Debug(fmt.Sprintf("Set Role: Error getting User: %v", err))
 			return
 		}
 
+		// Get channel for GuildID.
 		channel, err := sess.Channel(m.ChannelID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Set Role: Error getting Channel: %v", err))
 			return
 		}
 
+		// Get Guild Roles to check whether a role exists.
 		roles, err := sess.GuildRoles(channel.GuildID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Set role: Error getting Guild Roles: %v", err))
 			return
 		}
 
+		// Check whether the role exists.
 		exists := false
 		var roleID string
 		for _, role := range roles {
@@ -95,12 +105,15 @@ func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.Me
 	}
 }
 
+// removeRoleHandler handles the Remove Role command, which removes a role from a specified user.
 func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
 	permissions, err := sess.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
+		s.Log.Debug(fmt.Sprintf("Remove Role: Error getting user permissions: %v", err))
 		return
 	}
 
+	// Check whether a user has the Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
 		msg := m.Content
@@ -108,6 +121,7 @@ func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo
 
 		// Check if there are 3 arguments.
 		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Remove Role: Not enough arguments: %v", parts))
 			return
 		}
 
@@ -121,14 +135,17 @@ func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo
 
 		channel, err := sess.Channel(m.ChannelID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Remove Role: Error getting Channel: %v", err))
 			return
 		}
 
 		roles, err := sess.GuildRoles(channel.GuildID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Remove Role: Error getting Guild Roles: %v", err))
 			return
 		}
 
+		// Check whether specified role exists.
 		exists := false
 		var roleID string
 		for _, role := range roles {
@@ -151,10 +168,11 @@ func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo
 	}
 }
 
+// removeAllRolesHandler handles the Remove All Roles command, which removes all roles from a specified user.
 func removeAllRolesHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
 	permissions, err := sess.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
-		s.Log.Debug(fmt.Sprintf("Error getting user permissions: %v", err))
+		s.Log.Debug(fmt.Sprintf("Remove All Roles: Error getting user permissions: %v", err))
 		return
 	}
 
@@ -165,7 +183,7 @@ func removeAllRolesHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *disco
 
 		// Check if there are 2 arguments.
 		if len(parts) != 2 {
-			s.Log.Debug(fmt.Sprintf("Error running RemoveAllRoles, parts: %v", parts))
+			s.Log.Debug(fmt.Sprintf("Remove All Roles: Error running RemoveAllRoles, parts: %v", parts))
 			return
 		}
 
@@ -174,20 +192,21 @@ func removeAllRolesHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *disco
 		user, err := sess.User(userID)
 		if err != nil {
 			sess.ChannelMessageSend(m.ChannelID, "Username invalid.")
+			s.Log.Debug(fmt.Sprintf("Remove All Roles: Error getting User: %v", err))
 			return
 		}
 
 		// Get channel of the message (for getting GuildID)
 		channel, err := sess.Channel(m.ChannelID)
 		if err != nil {
-			s.Log.Debug(fmt.Sprintf("Error getting channel: %v", err))
+			s.Log.Debug(fmt.Sprintf("Remove All Roles: Error getting channel: %v", err))
 			return
 		}
 
 		// Get Guild Member for getting roles.
 		member, err := sess.GuildMember(channel.GuildID, userID)
 		if err != nil {
-			s.Log.Debug(fmt.Sprintf("Error getting Guild Member: %v", err))
+			s.Log.Debug(fmt.Sprintf("Remove All Roles: Error getting Guild Member: %v", err))
 			return
 		}
 
@@ -200,7 +219,7 @@ func removeAllRolesHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *disco
 
 		// Range over the userRoles and delete each one.
 		for _, userRole := range userRoles {
-			s.Log.Debug("Role deleted, ID: " + userRole)
+			s.Log.Debug("Remove All Roles: Role deleted, ID: " + userRole)
 			sess.GuildMemberRoleRemove(channel.GuildID, user.ID, userRole)
 		}
 
