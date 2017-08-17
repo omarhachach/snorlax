@@ -24,8 +24,8 @@ func init() {
 	commands[pingCommand.Name] = &pingCommand
 }
 
-func ping(s *discordgo.Session, m *discordgo.MessageCreate) {
-	s.ChannelMessageSend(m.ChannelID, "Pong! "+m.Author.Mention())
+func ping(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
+	sess.ChannelMessageSend(m.ChannelID, "Pong! "+m.Author.Mention())
 }
 
 // GetModule returns the Module

@@ -4,22 +4,22 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	log "github.com/sirupsen/logrus"
 )
 
-func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content[0] != '.' || m.Author.ID == s.State.User.ID {
-		return
+func onMessageCreate(s *Snorlax) func(sess *discordgo.Session, m *discordgo.MessageCreate) {
+	return func(sess *discordgo.Session, m *discordgo.MessageCreate) {
+		if m.Content[0] != '.' || m.Author.ID == sess.State.User.ID {
+			return
+		}
+
+		msg := m.ContentWithMentionsReplaced()
+		msgCommand := strings.Replace(strings.Split(strings.ToLower(msg), " ")[0], ".", "", 1)
+
+		c, ok := Commands[msgCommand]
+		if ok {
+			c.Handler(s, sess, m)
+		} else {
+			s.Log.Debug("Command " + msgCommand + " does not exist.")
+		}
 	}
-
-	msg := m.ContentWithMentionsReplaced()
-	msgCommand := strings.Replace(strings.Split(strings.ToLower(msg), " ")[0], ".", "", 1)
-
-	c, ok := Commands[msgCommand]
-	if ok {
-		c.Handler(s, m)
-	} else {
-		log.Debug("Command does not exist")
-	}
-
 }
