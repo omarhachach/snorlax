@@ -87,7 +87,7 @@ func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.Me
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if role.Name == parts[2] {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
 					exists = true
 					roleID = role.ID
 				}
@@ -150,7 +150,7 @@ func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if role.Name == parts[2] {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
 					exists = true
 					roleID = role.ID
 				}
