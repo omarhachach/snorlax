@@ -18,16 +18,23 @@ type Snorlax struct {
 	Discord *discordgo.Session
 	Modules map[string]Module
 	Log     *logrus.Logger
+	config  *Config
+}
+
+// Config holds the options for the bot.
+type Config struct {
+	Debug bool
 }
 
 // NewBot returns a new bot type.
-func NewBot(discord *discordgo.Session) *Snorlax {
+func NewBot(discord *discordgo.Session, config *Config) *Snorlax {
 	Commands = make(map[string]*Command)
 
 	return &Snorlax{
 		Discord: discord,
 		Modules: make(map[string]Module),
 		Log:     logrus.New(),
+		config:  config,
 	}
 }
 
@@ -71,7 +78,9 @@ func (s *Snorlax) RegisterModule(module Module) {
 func (s *Snorlax) Start() {
 	s.Discord.AddHandler(onMessageCreate(s))
 
-	s.Log.SetLevel(logrus.DebugLevel)
+	if s.config.Debug {
+		s.Log.SetLevel(logrus.DebugLevel)
+	}
 	err := s.Discord.Open()
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
