@@ -11,10 +11,13 @@ import (
 func main() {
 	var (
 		token = flag.String("t", "", "Discord Bot Authentication Token")
+		debug = flag.Bool("debug", true, "Debug Mode")
 	)
 	flag.Parse()
 
-	bot := snorlax.New(*token)
+	bot := snorlax.New(*token, &snorlax.Config{
+		Debug: *debug,
+	})
 
 	bot.RegisterModule(ping.GetModule())
 	bot.RegisterModule(rolemanager.GetModule())
