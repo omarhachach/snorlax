@@ -18,16 +18,17 @@ type Snorlax struct {
 	Discord *discordgo.Session
 	Modules map[string]Module
 	Log     *logrus.Logger
+	token   string
 }
 
-// NewBot returns a new bot type.
-func NewBot(discord *discordgo.Session) *Snorlax {
+// New returns a new bot type.
+func New(token string) *Snorlax {
 	Commands = make(map[string]*Command)
 
 	return &Snorlax{
-		Discord: discord,
 		Modules: make(map[string]Module),
 		Log:     logrus.New(),
+		token:   token,
 	}
 }
 
@@ -69,10 +70,19 @@ func (s *Snorlax) RegisterModule(module Module) {
 
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
+	discord, err := discordgo.New("Bot " + s.token)
+	if err != nil {
+		s.Log.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatal("Failed to create the Discord session")
+		return
+	}
+	s.Discord = discord
+
 	s.Discord.AddHandler(onMessageCreate(s))
 
 	s.Log.SetLevel(logrus.DebugLevel)
-	err := s.Discord.Open()
+	err = s.Discord.Open()
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
 			"error": err,
