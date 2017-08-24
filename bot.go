@@ -8,31 +8,34 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	// Commands is a list of all the registered commands, and their assocated Command type.
-	Commands map[string]*Command
-)
-
 // Snorlax is the bot type.
 type Snorlax struct {
-	Discord *discordgo.Session
-	Modules map[string]Module
-	Log     *logrus.Logger
+	Commands map[string]*Command
+	Modules  map[string]*Module
+	Session  *discordgo.Session
+	Log      *logrus.Logger
+	token    string
+	config   *Config
 }
 
-// NewBot returns a new bot type.
-func NewBot(discord *discordgo.Session) *Snorlax {
-	Commands = make(map[string]*Command)
+// Config holds the options for the bot.
+type Config struct {
+	Debug bool
+}
 
+// New returns a new bot type.
+func New(token string, config *Config) *Snorlax {
 	return &Snorlax{
-		Discord: discord,
-		Modules: make(map[string]Module),
-		Log:     logrus.New(),
+		Commands: map[string]*Command{},
+		Modules:  map[string]*Module{},
+		Log:      logrus.New(),
+		token:    token,
+		config:   config,
 	}
 }
 
 // RegisterModule allows you to register a module to expand the bot.
-func (s *Snorlax) RegisterModule(module Module) {
+func (s *Snorlax) RegisterModule(module *Module) {
 	_, moduleExist := s.Modules[module.Name]
 	if moduleExist {
 		s.Log.Error("Failed to load module: " + module.Name + ".\nModule with same name has already been registered.")
@@ -40,7 +43,7 @@ func (s *Snorlax) RegisterModule(module Module) {
 	}
 
 	for _, command := range module.Commands {
-		existingCommand, commandExist := Commands[command.Name]
+		existingCommand, commandExist := s.Commands[command.Name]
 		if commandExist {
 			s.Log.Error("Failed to load module: " + module.Name +
 				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + command.Name)
@@ -48,7 +51,7 @@ func (s *Snorlax) RegisterModule(module Module) {
 		}
 
 		if command.Alias != "" {
-			existingAlias, aliasExist := Commands[command.Alias]
+			existingAlias, aliasExist := s.Commands[command.Alias]
 			if aliasExist {
 				s.Log.Error("Failed to load module: " + module.Name +
 					".\nModule " + existingAlias.ModuleName + "has already registered command/alias: " + command.Alias)
@@ -56,11 +59,11 @@ func (s *Snorlax) RegisterModule(module Module) {
 			}
 
 			s.Log.Debug("Registered Alias: " + command.Alias)
-			Commands[command.Alias] = command
+			s.Commands[command.Alias] = command
 		}
 
 		s.Log.Debug("Registered Command: " + command.Name)
-		Commands[command.Name] = command
+		s.Commands[command.Name] = command
 	}
 
 	s.Modules[module.Name] = module
@@ -69,10 +72,21 @@ func (s *Snorlax) RegisterModule(module Module) {
 
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
-	s.Discord.AddHandler(onMessageCreate(s))
+	discord, err := discordgo.New("Bot " + s.token)
+	if err != nil {
+		s.Log.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatal("Failed to create the Discord session")
+		return
+	}
+	s.Session = discord
 
-	s.Log.SetLevel(logrus.DebugLevel)
-	err := s.Discord.Open()
+	s.Session.AddHandler(onMessageCreate(s))
+
+	if s.config.Debug {
+		s.Log.SetLevel(logrus.DebugLevel)
+	}
+	err = s.Session.Open()
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
 			"error": err,
@@ -87,7 +101,7 @@ func (s *Snorlax) Start() {
 	<-c
 
 	s.Log.Info("Snorlax is now sleeping.")
-	err = s.Discord.Close()
+	err = s.Session.Close()
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
 			"error": err,
