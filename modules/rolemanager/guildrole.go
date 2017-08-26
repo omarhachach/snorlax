@@ -12,8 +12,8 @@ import (
 
 func init() {
 	createRole := &snorlax.Command{
-		Command:    "createrole",
-		Alias:      "cr",
+		Command:    ".createrole",
+		Alias:      ".cr",
 		Desc:       "Creates a role in the current guild.",
 		ModuleName: moduleName,
 		Handler:    createRoleHandler,
@@ -44,26 +44,6 @@ func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			s.Log.WithField("error", err).Debug("Error getting channel.")
 			return
 		}
-
-		/*
-			roles, err := s.Session.GuildRoles(channel.GuildID)
-			if err != nil {
-				s.Log.WithField("error", err).Debug("Error getting Guild Roles.")
-				return
-			}
-
-			exists := false
-			for _, val := range roles {
-				if val.Name == parts[1] {
-					exists = true
-				}
-			}
-
-			if exists {
-				s.Session.ChannelMessageSend(m.ChannelID, "Role "+parts[1]+" already exists!")
-				return
-			}
-		*/
 
 		role, err := s.Session.GuildRoleCreate(channel.GuildID)
 		if err != nil {
