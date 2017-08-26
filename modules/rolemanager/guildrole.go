@@ -12,14 +12,14 @@ import (
 
 func init() {
 	createRole := &snorlax.Command{
-		Name:       "createrole",
+		Command:    "createrole",
 		Alias:      "cr",
 		Desc:       "Creates a role in the current guild.",
 		ModuleName: moduleName,
 		Handler:    createRoleHandler,
 	}
 
-	commands[createRole.Name] = createRole
+	commands[createRole.Command] = createRole
 }
 
 func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
