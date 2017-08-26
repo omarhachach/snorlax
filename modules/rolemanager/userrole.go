@@ -42,9 +42,11 @@ func init() {
 func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 	permissions, err := s.Session.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
+		s.Log.Debug(fmt.Sprintf("Set Role: Error getting user permissions: %v", err))
 		return
 	}
 
+	// Check if user has Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
 		msg := m.Content
@@ -52,6 +54,7 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		// Check if there are 3 arguments.
 		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Set Role: Not enough arguments: %v", parts))
 			return
 		}
 
@@ -65,19 +68,22 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		channel, err := s.Session.Channel(m.ChannelID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Set Role: Error getting Channel: %v", err))
 			return
 		}
 
 		roles, err := s.Session.GuildRoles(channel.GuildID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Set role: Error getting Guild Roles: %v", err))
 			return
 		}
 
+		// Check whether the role exists.
 		exists := false
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if role.Name == parts[2] {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
 					exists = true
 					roleID = role.ID
 				}
@@ -98,9 +104,11 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 	permissions, err := s.Session.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
+		s.Log.Debug(fmt.Sprintf("Remove Role: Error getting user permissions: %v", err))
 		return
 	}
 
+	// Check whether a user has the Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
 		msg := m.Content
@@ -108,6 +116,7 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		// Check if there are 3 arguments.
 		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Remove Role: Not enough arguments: %v", parts))
 			return
 		}
 
@@ -121,19 +130,22 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		channel, err := s.Session.Channel(m.ChannelID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Remove Role: Error getting Channel: %v", err))
 			return
 		}
 
 		roles, err := s.Session.GuildRoles(channel.GuildID)
 		if err != nil {
+			s.Log.Debug(fmt.Sprintf("Remove Role: Error getting Guild Roles: %v", err))
 			return
 		}
 
+		// Check whether specified role exists.
 		exists := false
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if role.Name == parts[2] {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
 					exists = true
 					roleID = role.ID
 				}
@@ -154,7 +166,7 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 	permissions, err := s.Session.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
-		s.Log.Debug(fmt.Sprintf("Error getting user permissions: %v", err))
+		s.Log.Debug(fmt.Sprintf("Remove All Roles: Error getting user permissions: %v", err))
 		return
 	}
 
@@ -165,7 +177,7 @@ func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		// Check if there are 2 arguments.
 		if len(parts) != 2 {
-			s.Log.Debug(fmt.Sprintf("Error running RemoveAllRoles, parts: %v", parts))
+			s.Log.Debug(fmt.Sprintf("Remove All Roles: Error running RemoveAllRoles, parts: %v", parts))
 			return
 		}
 
@@ -180,14 +192,14 @@ func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		// Get channel of the message (for getting GuildID)
 		channel, err := s.Session.Channel(m.ChannelID)
 		if err != nil {
-			s.Log.Debug(fmt.Sprintf("Error getting channel: %v", err))
+			s.Log.Debug(fmt.Sprintf("Remove All Roles: Error getting channel: %v", err))
 			return
 		}
 
 		// Get Guild Member for getting roles.
 		member, err := s.Session.GuildMember(channel.GuildID, userID)
 		if err != nil {
-			s.Log.Debug(fmt.Sprintf("Error getting Guild Member: %v", err))
+			s.Log.Debug(fmt.Sprintf("Remove All Roles: Error getting Guild Member: %v", err))
 			return
 		}
 
