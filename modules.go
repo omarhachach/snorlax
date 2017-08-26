@@ -18,5 +18,5 @@ type Command struct {
 	Alias      string
 	Desc       string
 	ModuleName string
-	Handler    func(*Snorlax, *discordgo.Session, *discordgo.MessageCreate)
+	Handler    func(*Snorlax, *discordgo.MessageCreate)
 }

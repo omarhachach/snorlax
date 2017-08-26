@@ -6,31 +6,28 @@ import (
 )
 
 var (
-	commands   map[string]*snorlax.Command
-	moduleName string
+	commands   = map[string]*snorlax.Command{}
+	moduleName = "Ping"
 )
 
 func init() {
-	moduleName = "Ping"
-	commands = make(map[string]*snorlax.Command)
-
-	pingCommand := snorlax.Command{
+	pingCommand := &snorlax.Command{
 		Command:    ".ping",
 		Desc:       "Ping will respond with \"Pong!\"",
 		ModuleName: moduleName,
 		Handler:    ping,
 	}
 
-	commands[pingCommand.Command] = &pingCommand
+	commands[pingCommand.Command] = pingCommand
 }
 
-func ping(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
-	sess.ChannelMessageSend(m.ChannelID, "Pong! "+m.Author.Mention())
+func ping(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
+	s.Session.ChannelMessageSend(m.ChannelID, "Pong! "+m.Author.Mention())
 }
 
 // GetModule returns the Module
-func GetModule() snorlax.Module {
-	return snorlax.Module{
+func GetModule() *snorlax.Module {
+	return &snorlax.Module{
 		Name:     moduleName,
 		Commands: commands,
 	}
