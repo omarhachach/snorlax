@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	setRole := snorlax.Command{
+	setRole := &snorlax.Command{
 		Name:       "setrole",
 		Alias:      "sr",
 		Desc:       "Adds a users role.",
@@ -18,7 +18,7 @@ func init() {
 		Handler:    setRoleHandler,
 	}
 
-	removeRole := snorlax.Command{
+	removeRole := &snorlax.Command{
 		Name:       "removerole",
 		Alias:      "rr",
 		Desc:       "Removes a users role.",
@@ -26,7 +26,7 @@ func init() {
 		Handler:    removeRoleHandler,
 	}
 
-	removeAllRoles := snorlax.Command{
+	removeAllRoles := &snorlax.Command{
 		Name:       "removeallroles",
 		Alias:      "rar",
 		Desc:       "Removes all of a users roles.",
@@ -34,13 +34,13 @@ func init() {
 		Handler:    removeAllRolesHandler,
 	}
 
-	commands[setRole.Name] = &setRole
-	commands[removeRole.Name] = &removeRole
-	commands[removeAllRoles.Name] = &removeAllRoles
+	commands[setRole.Name] = setRole
+	commands[removeRole.Name] = removeRole
+	commands[removeAllRoles.Name] = removeAllRoles
 }
 
-func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
-	permissions, err := sess.UserChannelPermissions(m.Author.ID, m.ChannelID)
+func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
+	permissions, err := s.Session.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
 		return
 	}
@@ -57,18 +57,18 @@ func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.Me
 
 		// Get the user using the 2nd argument. (The username).
 		userID := utils.ExtractUserIDFromMention(parts[1])
-		user, err := sess.User(userID)
+		user, err := s.Session.User(userID)
 		if err != nil {
-			sess.ChannelMessageSend(m.ChannelID, "Username invalid.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
 			return
 		}
 
-		channel, err := sess.Channel(m.ChannelID)
+		channel, err := s.Session.Channel(m.ChannelID)
 		if err != nil {
 			return
 		}
 
-		roles, err := sess.GuildRoles(channel.GuildID)
+		roles, err := s.Session.GuildRoles(channel.GuildID)
 		if err != nil {
 			return
 		}
@@ -85,18 +85,18 @@ func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.Me
 		}
 
 		if !exists {
-			sess.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
 			return
 		}
-		sess.GuildMemberRoleAdd(channel.GuildID, m.Author.ID, roleID)
-		sess.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been added to "+user.Mention())
+		s.Session.GuildMemberRoleAdd(channel.GuildID, m.Author.ID, roleID)
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been added to "+user.Mention())
 	} else {
-		sess.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
+		s.Session.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
 	}
 }
 
-func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
-	permissions, err := sess.UserChannelPermissions(m.Author.ID, m.ChannelID)
+func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
+	permissions, err := s.Session.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
 		return
 	}
@@ -113,18 +113,18 @@ func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo
 
 		// Get the user using the 2nd argument. (The username).
 		userID := utils.ExtractUserIDFromMention(parts[1])
-		user, err := sess.User(userID)
+		user, err := s.Session.User(userID)
 		if err != nil {
-			sess.ChannelMessageSend(m.ChannelID, "Username invalid.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
 			return
 		}
 
-		channel, err := sess.Channel(m.ChannelID)
+		channel, err := s.Session.Channel(m.ChannelID)
 		if err != nil {
 			return
 		}
 
-		roles, err := sess.GuildRoles(channel.GuildID)
+		roles, err := s.Session.GuildRoles(channel.GuildID)
 		if err != nil {
 			return
 		}
@@ -141,18 +141,18 @@ func removeRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo
 		}
 
 		if !exists {
-			sess.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
 			return
 		}
-		sess.GuildMemberRoleRemove(channel.GuildID, m.Author.ID, roleID)
-		sess.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been removed from "+user.Mention())
+		s.Session.GuildMemberRoleRemove(channel.GuildID, m.Author.ID, roleID)
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been removed from "+user.Mention())
 	} else {
-		sess.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
+		s.Session.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
 	}
 }
 
-func removeAllRolesHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {
-	permissions, err := sess.UserChannelPermissions(m.Author.ID, m.ChannelID)
+func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
+	permissions, err := s.Session.UserChannelPermissions(m.Author.ID, m.ChannelID)
 	if err != nil {
 		s.Log.Debug(fmt.Sprintf("Error getting user permissions: %v", err))
 		return
@@ -171,21 +171,21 @@ func removeAllRolesHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *disco
 
 		// Get the user using the 2nd argument. (The username).
 		userID := utils.ExtractUserIDFromMention(parts[1])
-		user, err := sess.User(userID)
+		user, err := s.Session.User(userID)
 		if err != nil {
-			sess.ChannelMessageSend(m.ChannelID, "Username invalid.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
 			return
 		}
 
 		// Get channel of the message (for getting GuildID)
-		channel, err := sess.Channel(m.ChannelID)
+		channel, err := s.Session.Channel(m.ChannelID)
 		if err != nil {
 			s.Log.Debug(fmt.Sprintf("Error getting channel: %v", err))
 			return
 		}
 
 		// Get Guild Member for getting roles.
-		member, err := sess.GuildMember(channel.GuildID, userID)
+		member, err := s.Session.GuildMember(channel.GuildID, userID)
 		if err != nil {
 			s.Log.Debug(fmt.Sprintf("Error getting Guild Member: %v", err))
 			return
@@ -194,18 +194,18 @@ func removeAllRolesHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *disco
 		// Check if the user has any roles.
 		userRoles := member.Roles
 		if len(userRoles) <= 0 {
-			sess.ChannelMessageSend(m.ChannelID, user.Mention()+" has no roles.")
+			s.Session.ChannelMessageSend(m.ChannelID, user.Mention()+" has no roles.")
 			return
 		}
 
 		// Range over the userRoles and delete each one.
 		for _, userRole := range userRoles {
 			s.Log.Debug("Role deleted, ID: " + userRole)
-			sess.GuildMemberRoleRemove(channel.GuildID, user.ID, userRole)
+			s.Session.GuildMemberRoleRemove(channel.GuildID, user.ID, userRole)
 		}
 
-		sess.ChannelMessageSend(m.ChannelID, "All roles have been removed from "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "All roles have been removed from "+user.Mention())
 	} else {
-		sess.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
+		s.Session.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
 	}
 }
