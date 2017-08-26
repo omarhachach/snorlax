@@ -14,7 +14,7 @@ type Module struct {
 
 // Command holds the data and handler for a command.
 type Command struct {
-	Name       string
+	Command    string
 	Alias      string
 	Desc       string
 	ModuleName string

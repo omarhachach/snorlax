@@ -8,12 +8,12 @@ import (
 
 func onMessageCreate(s *Snorlax) func(sess *discordgo.Session, m *discordgo.MessageCreate) {
 	return func(sess *discordgo.Session, m *discordgo.MessageCreate) {
-		if m.Content[0] != '.' || m.Author.ID == sess.State.User.ID {
+		if m.Author.ID == sess.State.User.ID {
 			return
 		}
 
 		msg := m.ContentWithMentionsReplaced()
-		msgCommand := strings.Replace(strings.Split(strings.ToLower(msg), " ")[0], ".", "", 1)
+		msgCommand := strings.Split(msg, " ")[0]
 
 		c, ok := Commands[msgCommand]
 		if ok {

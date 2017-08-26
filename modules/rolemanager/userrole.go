@@ -11,32 +11,32 @@ import (
 
 func init() {
 	setRole := snorlax.Command{
-		Name:       "setrole",
-		Alias:      "sr",
+		Command:    ".setrole",
+		Alias:      ".sr",
 		Desc:       "Adds a users role.",
 		ModuleName: moduleName,
 		Handler:    setRoleHandler,
 	}
 
 	removeRole := snorlax.Command{
-		Name:       "removerole",
-		Alias:      "rr",
+		Command:    ".removerole",
+		Alias:      ".rr",
 		Desc:       "Removes a users role.",
 		ModuleName: moduleName,
 		Handler:    removeRoleHandler,
 	}
 
 	removeAllRoles := snorlax.Command{
-		Name:       "removeallroles",
-		Alias:      "rar",
+		Command:    ".removeallroles",
+		Alias:      ".rar",
 		Desc:       "Removes all of a users roles.",
 		ModuleName: moduleName,
 		Handler:    removeAllRolesHandler,
 	}
 
-	commands[setRole.Name] = &setRole
-	commands[removeRole.Name] = &removeRole
-	commands[removeAllRoles.Name] = &removeAllRoles
+	commands[setRole.Command] = &setRole
+	commands[removeRole.Command] = &removeRole
+	commands[removeAllRoles.Command] = &removeAllRoles
 }
 
 func setRoleHandler(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {

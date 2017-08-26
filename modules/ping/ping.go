@@ -15,13 +15,13 @@ func init() {
 	commands = make(map[string]*snorlax.Command)
 
 	pingCommand := snorlax.Command{
-		Name:       "ping",
+		Command:    ".ping",
 		Desc:       "Ping will respond with \"Pong!\"",
 		ModuleName: moduleName,
 		Handler:    ping,
 	}
 
-	commands[pingCommand.Name] = &pingCommand
+	commands[pingCommand.Command] = &pingCommand
 }
 
 func ping(s *snorlax.Snorlax, sess *discordgo.Session, m *discordgo.MessageCreate) {

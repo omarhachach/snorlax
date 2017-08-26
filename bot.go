@@ -47,10 +47,10 @@ func (s *Snorlax) RegisterModule(module Module) {
 	}
 
 	for _, command := range module.Commands {
-		existingCommand, commandExist := Commands[command.Name]
+		existingCommand, commandExist := Commands[command.Command]
 		if commandExist {
 			s.Log.Error("Failed to load module: " + module.Name +
-				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + command.Name)
+				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + command.Command)
 			return
 		}
 
@@ -66,8 +66,8 @@ func (s *Snorlax) RegisterModule(module Module) {
 			Commands[command.Alias] = command
 		}
 
-		s.Log.Debug("Registered Command: " + command.Name)
-		Commands[command.Name] = command
+		s.Log.Debug("Registered Command: " + command.Command)
+		Commands[command.Command] = command
 	}
 
 	s.Modules[module.Name] = module
