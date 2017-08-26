@@ -19,7 +19,16 @@ func init() {
 		Handler:    createRoleHandler,
 	}
 
+	deleteRole := &snorlax.Command{
+		Command:    ".deleterole",
+		Alias:      ".dr",
+		Desc:       "Deletes a role in hte current guild.",
+		ModuleName: moduleName,
+		Handler:    deleteRoleHandler,
+	}
+
 	commands[createRole.Command] = createRole
+	commands[deleteRole.Command] = deleteRole
 }
 
 func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
@@ -76,5 +85,58 @@ func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		s.Session.ChannelMessageSend(m.ChannelID, "Created role "+role.Name+"!")
+	}
+}
+
+func deleteRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
+	permissions, err := s.Session.UserChannelPermissions(m.Author.ID, m.ChannelID)
+	if err != nil {
+		s.Log.WithField("error", err).Debug("Error getting user permissions.")
+		return
+	}
+
+	if permissions&discordgo.PermissionManageRoles != 0 {
+		// Get the message content and split it into arguments
+		msg := m.Content
+		parts := strings.Split(msg, " ")
+
+		if len(parts) != 2 {
+			s.Log.Debug(fmt.Sprintf("Not enough arguments: %v", parts))
+			return
+		}
+
+		channel, err := s.Session.Channel(m.ChannelID)
+		if err != nil {
+			s.Log.WithField("error", err).Debug("Error getting channel.")
+			return
+		}
+
+		roles, err := s.Session.GuildRoles(channel.GuildID)
+		if err != nil {
+			s.Log.WithField("error", err).Debug("Error getting Guild Roles.")
+			return
+		}
+
+		exists := false
+		var roleID string
+		for _, role := range roles {
+			if !exists && role.Name == parts[1] {
+				exists = true
+				roleID = role.ID
+			}
+		}
+
+		if !exists {
+			s.Session.ChannelMessageSend(m.ChannelID, "Role "+parts[1]+" does not exist.")
+			return
+		}
+
+		err = s.Session.GuildRoleDelete(channel.GuildID, roleID)
+		if err != nil {
+			s.Log.WithField("error", err).Debug("Error deleting role " + roleID + ".")
+			return
+		}
+
+		s.Session.ChannelMessageSend(m.ChannelID, "Role "+parts[1]+" has been deleted.")
 	}
 }
