@@ -33,7 +33,7 @@ You also need to define a [GOPATH](https://golang.org/doc/code.html#GOPATH).
 Follow these instructions to compile and run Snorlax form source.
 ```Bash
 $ go get github.com/omar-h/snorlax
-$ go install github.com/omar-h/snorlax
+$ go install github.com/omar-h/snorlax/cmd/snorlax
 ```
 It will install it in the bin folder in your GOPATH ($GOPATH/bin).<br>
 If you have $GOPATH/bin in your PATH variable, you will be able to run it like so:
