@@ -62,18 +62,18 @@ func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			return
 		}
 
-		colourIsValid, err := regexp.MatchString("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", parts[1])
+		colorIsValid, err := regexp.MatchString("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", parts[1])
 		if err != nil {
 			s.Log.WithField("error", err).Debug("Error running regex on colour string.")
 			return
 		}
 
-		if !colourIsValid {
+		if !colorIsValid {
 			s.Session.ChannelMessageSend(m.ChannelID, "Colour isn't valid.")
 			return
 		}
 
-		colour, err := strconv.ParseInt(parts[1], 16, 32)
+		color, err := strconv.ParseInt(parts[1], 16, 32)
 		if err != nil {
 			s.Log.WithField("error", err).Debug("Error parsing colour value.")
 			return
@@ -86,7 +86,7 @@ func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			return
 		}
 
-		role, err = s.Session.GuildRoleEdit(channel.GuildID, role.ID, msgRoleName, int(colour), hoist, 0, true)
+		role, err = s.Session.GuildRoleEdit(channel.GuildID, role.ID, msgRoleName, int(color), hoist, 0, true)
 		if err != nil {
 			s.Log.WithField("error", err).Debug("Error editing guild role.")
 			return
