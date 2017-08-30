@@ -8,6 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var reservedCommands = map[string]*Command{}
+
 // Snorlax is the bot type.
 type Snorlax struct {
 	Commands map[string]*Command
