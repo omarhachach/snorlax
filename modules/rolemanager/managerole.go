@@ -16,6 +16,7 @@ func init() {
 		Command:    ".rolehoist",
 		Alias:      ".rh",
 		Desc:       "Role hoist changes whether or not to display a role sperately.",
+		Usage:      ".rolehoist <role-name> <hoist-value>",
 		ModuleName: moduleName,
 		Handler:    roleHoistHandler,
 	}
@@ -24,6 +25,7 @@ func init() {
 		Command:    ".rolecolor",
 		Alias:      ".rc",
 		Desc:       "Role color changes the color of a specified role.",
+		Usage:      ".rolecolor <role-name> <hex-color>",
 		ModuleName: moduleName,
 		Handler:    roleColorHandler,
 	}

@@ -14,6 +14,7 @@ func init() {
 	pingCommand := &snorlax.Command{
 		Command:    ".ping",
 		Desc:       "Ping will respond with \"Pong!\"",
+		Usage:      ".ping",
 		ModuleName: moduleName,
 		Handler:    ping,
 	}

@@ -14,6 +14,7 @@ func init() {
 		Command:    ".setrole",
 		Alias:      ".sr",
 		Desc:       "Adds a users role.",
+		Usage:      ".setrole @<user> <role>",
 		ModuleName: moduleName,
 		Handler:    setRoleHandler,
 	}
@@ -22,6 +23,7 @@ func init() {
 		Command:    ".removerole",
 		Alias:      ".rr",
 		Desc:       "Removes a users role.",
+		Usage:      ".removerole @<user> <role>",
 		ModuleName: moduleName,
 		Handler:    removeRoleHandler,
 	}
@@ -30,6 +32,7 @@ func init() {
 		Command:    ".removeallroles",
 		Alias:      ".rar",
 		Desc:       "Removes all of a users roles.",
+		Usage:      ".removeallroles @<user>",
 		ModuleName: moduleName,
 		Handler:    removeAllRolesHandler,
 	}

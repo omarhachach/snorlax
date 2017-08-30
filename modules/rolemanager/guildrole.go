@@ -16,6 +16,7 @@ func init() {
 		Command:    ".createrole",
 		Alias:      ".cr",
 		Desc:       "Creates a role in the current guild.",
+		Usage:      ".createrole <role-name> <hex-color> <hoist-value>",
 		ModuleName: moduleName,
 		Handler:    createRoleHandler,
 	}
@@ -24,6 +25,7 @@ func init() {
 		Command:    ".deleterole",
 		Alias:      ".dr",
 		Desc:       "Deletes a role in hte current guild.",
+		Usage:      ".deleterole <role-name>",
 		ModuleName: moduleName,
 		Handler:    deleteRoleHandler,
 	}
