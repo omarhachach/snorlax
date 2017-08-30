@@ -172,15 +172,6 @@ func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			return
 		}
 
-		// Get the user using the 2nd argument. (The username).
-		userID := utils.ExtractUserIDFromMention(parts[1])
-		user, err := s.Session.User(userID)
-		if err != nil {
-			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
-			s.Log.WithField("error", err).Debug("Error getting user.")
-			return
-		}
-
 		// Get channel of the message (for getting GuildID)
 		channel, err := s.Session.Channel(m.ChannelID)
 		if err != nil {
@@ -188,6 +179,7 @@ func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			return
 		}
 
+		userID := utils.ExtractUserIDFromMention(parts[1])
 		// Get Guild Member for getting roles.
 		member, err := s.Session.GuildMember(channel.GuildID, userID)
 		if err != nil {
@@ -198,16 +190,16 @@ func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		// Check if the user has any roles.
 		userRoles := member.Roles
 		if len(userRoles) <= 0 {
-			s.Session.ChannelMessageSend(m.ChannelID, user.Mention()+" has no roles.")
+			s.Session.ChannelMessageSend(m.ChannelID, member.User.Mention()+" has no roles.")
 			return
 		}
 
 		// Range over the userRoles and delete each one.
 		for _, userRole := range userRoles {
 			s.Log.Debug("Role deleted. ID: " + userRole)
-			s.Session.GuildMemberRoleRemove(channel.GuildID, user.ID, userRole)
+			s.Session.GuildMemberRoleRemove(channel.GuildID, member.User.ID, userRole)
 		}
 
-		s.Session.ChannelMessageSend(m.ChannelID, "All roles have been removed from "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "All roles have been removed from "+member.User.Mention())
 	}
 }
