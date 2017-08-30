@@ -59,7 +59,7 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		// Get the user using the 2nd argument. (The username).
-		userID := utils.ExtractUserIDFromMention(parts[2])
+		userID := utils.ExtractUserIDFromMention(parts[1])
 		user, err := s.Session.User(userID)
 		if err != nil {
 			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
@@ -84,7 +84,7 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if strings.ToLower(role.Name) == strings.ToLower(parts[1]) {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
 					exists = true
 					roleID = role.ID
 				}
@@ -92,11 +92,11 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
 			return
 		}
 		s.Session.GuildMemberRoleAdd(channel.GuildID, m.Author.ID, roleID)
-		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" has been added to "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been added to "+user.Mention())
 	}
 }
 
@@ -117,7 +117,7 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		// Get the user using the 2nd argument. (The username).
-		userID := utils.ExtractUserIDFromMention(parts[2])
+		userID := utils.ExtractUserIDFromMention(parts[1])
 		user, err := s.Session.User(userID)
 		if err != nil {
 			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
@@ -142,7 +142,7 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if strings.ToLower(role.Name) == strings.ToLower(parts[1]) {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
 					exists = true
 					roleID = role.ID
 				}
@@ -150,11 +150,11 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
 			return
 		}
 		s.Session.GuildMemberRoleRemove(channel.GuildID, m.Author.ID, roleID)
-		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" has been removed from "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been removed from "+user.Mention())
 	}
 }
 

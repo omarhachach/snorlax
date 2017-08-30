@@ -22,8 +22,7 @@ func GetStringFromQuotes(parts []string) []string {
 			if val[0] == '"' {
 				if val[len(val)-1] == '"' {
 					found = true
-					val = val[:len(val)-1]
-					buffer.WriteString(val[1:])
+					buffer.WriteString(val[:len(val)-1][1:])
 					newParts = append(newParts, buffer.String())
 				} else {
 					buffer.WriteString(val[1:])
@@ -31,8 +30,7 @@ func GetStringFromQuotes(parts []string) []string {
 			} else if buffer.Len() != 0 {
 				if val[len(val)-1] == '"' {
 					found = true
-					val = val[:len(val)-1]
-					buffer.WriteString(" " + val)
+					buffer.WriteString(" " + val[:len(val)-1])
 					newParts = append(newParts, buffer.String())
 				} else {
 					buffer.WriteString(" " + val)
