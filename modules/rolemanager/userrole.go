@@ -50,11 +50,11 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
 		msg := m.Content
-		parts := strings.Split(msg, " ")
+		msgParts := strings.Split(msg, " ")
 
-		// Check if there are 3 arguments.
-		if len(parts) != 3 {
-			s.Log.Debug(fmt.Sprintf("Set Role: Not enough arguments: %v", parts))
+		msgRoleName, parts := utils.GetStringFromParts(msgParts)
+		if msgRoleName == "" || len(parts) != 2 {
+			s.Log.Debug(fmt.Sprintf("Not enough arguments: %v", msgParts))
 			return
 		}
 
@@ -83,7 +83,7 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
+				if strings.ToLower(role.Name) == strings.ToLower(msgRoleName) {
 					exists = true
 					roleID = role.ID
 				}
@@ -91,11 +91,11 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" does not exist.")
 			return
 		}
 		s.Session.GuildMemberRoleAdd(channel.GuildID, m.Author.ID, roleID)
-		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been added to "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" has been added to "+user.Mention())
 	} else {
 		s.Session.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
 	}
@@ -112,11 +112,11 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
 		msg := m.Content
-		parts := strings.Split(msg, " ")
+		msgParts := strings.Split(msg, " ")
 
-		// Check if there are 3 arguments.
-		if len(parts) != 3 {
-			s.Log.Debug(fmt.Sprintf("Remove Role: Not enough arguments: %v", parts))
+		msgRoleName, parts := utils.GetStringFromParts(msgParts)
+		if msgRoleName == "" || len(parts) != 2 {
+			s.Log.Debug(fmt.Sprintf("Not enough arguments: %v", msgParts))
 			return
 		}
 
@@ -145,7 +145,7 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if strings.ToLower(role.Name) == strings.ToLower(parts[2]) {
+				if strings.ToLower(role.Name) == strings.ToLower(msgRoleName) {
 					exists = true
 					roleID = role.ID
 				}
@@ -153,11 +153,11 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" does not exist.")
 			return
 		}
 		s.Session.GuildMemberRoleRemove(channel.GuildID, m.Author.ID, roleID)
-		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[2]+"\" has been removed from "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" has been removed from "+user.Mention())
 	} else {
 		s.Session.ChannelMessageSend(m.ChannelID, "You don't have permission to do this.")
 	}
