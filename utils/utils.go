@@ -10,28 +10,33 @@ func ExtractUserIDFromMention(mention string) string {
 	return strings.Replace(strings.Replace(strings.Replace(mention, "<", "", -1), ">", "", -1), "@", "", -1)
 }
 
-// GetStringFromParts finds a "String which spans multiple spaces" in a split message.
-func GetStringFromParts(parts []string) (string, []string) {
-	quotesFound := false
-	finish := false
+// GetStringFromQuotes finds a "string which spans multiple spaces" in a split message.
+// Then takes that and replaces the Quote string with a single string value of the quote contents.
+func GetStringFromQuotes(parts []string) []string {
+	found := false
 	var buffer bytes.Buffer
 	var newParts []string
 
 	for _, val := range parts {
-		if !finish {
-			if !quotesFound && val[0] == '"' {
-				quotesFound = true
+		if !found {
+			if val[0] == '"' {
 				if val[len(val)-1] == '"' {
-					finish = true
+					found = true
 					val = val[:len(val)-1]
+					buffer.WriteString(val[1:])
+					newParts = append(newParts, buffer.String())
+				} else {
+					buffer.WriteString(val[1:])
 				}
-				buffer.WriteString(val[1:])
-			} else if quotesFound {
+			} else if buffer.Len() != 0 {
 				if val[len(val)-1] == '"' {
-					finish = true
+					found = true
 					val = val[:len(val)-1]
+					buffer.WriteString(" " + val)
+					newParts = append(newParts, buffer.String())
+				} else {
+					buffer.WriteString(" " + val)
 				}
-				buffer.WriteString(" " + val)
 			} else {
 				newParts = append(newParts, val)
 			}
@@ -39,5 +44,6 @@ func GetStringFromParts(parts []string) (string, []string) {
 			newParts = append(newParts, val)
 		}
 	}
-	return buffer.String(), newParts
+
+	return newParts
 }
