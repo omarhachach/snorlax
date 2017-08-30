@@ -41,12 +41,10 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
-		msg := m.Content
-		msgParts := strings.Split(msg, " ")
+		parts := utils.GetStringFromQuotes(strings.Split(m.Content, " "))
 
-		msgRoleName, parts := utils.GetStringFromParts(msgParts)
-		if msgRoleName == "" || len(parts) != 2 {
-			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", msgParts))
+		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", parts))
 			return
 		}
 
@@ -65,18 +63,18 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		exists := false
 		var role *discordgo.Role
 		for _, checkRole := range roles {
-			if !exists && strings.ToLower(checkRole.Name) == strings.ToLower(msgRoleName) {
+			if !exists && strings.ToLower(checkRole.Name) == strings.ToLower(parts[1]) {
 				exists = true
 				role = checkRole
 			}
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role "+msgRoleName+" does not exist!")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role "+parts[1]+" does not exist!")
 			return
 		}
 
-		hoist, err := strconv.ParseBool(parts[1])
+		hoist, err := strconv.ParseBool(parts[2])
 		if err != nil {
 			s.Session.ChannelMessageSend(m.ChannelID, "Hoist value isn't valid.")
 			s.Log.WithField("error", err).Debug("Error parsing hoist value.")
@@ -89,7 +87,7 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			return
 		}
 
-		s.Session.ChannelMessageSend(m.ChannelID, "Hoist value for "+msgRoleName+" set to "+strconv.FormatBool(hoist)+".")
+		s.Session.ChannelMessageSend(m.ChannelID, "Hoist value for "+parts[1]+" set to "+strconv.FormatBool(hoist)+".")
 	}
 }
 
@@ -102,12 +100,9 @@ func roleColorHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
-		msg := m.Content
-		msgParts := strings.Split(msg, " ")
-
-		msgRoleName, parts := utils.GetStringFromParts(msgParts)
-		if msgRoleName == "" || len(parts) != 2 {
-			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", msgParts))
+		parts := utils.GetStringFromQuotes(strings.Split(m.Content, " "))
+		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", parts))
 			return
 		}
 
@@ -126,18 +121,18 @@ func roleColorHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		exists := false
 		var role *discordgo.Role
 		for _, checkRole := range roles {
-			if !exists && strings.ToLower(checkRole.Name) == strings.ToLower(msgRoleName) {
+			if !exists && strings.ToLower(checkRole.Name) == strings.ToLower(parts[1]) {
 				exists = true
 				role = checkRole
 			}
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role "+msgRoleName+" does not exist!")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role "+parts[1]+" does not exist!")
 			return
 		}
 
-		colorIsValid, err := regexp.MatchString("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", parts[1])
+		colorIsValid, err := regexp.MatchString("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", parts[2])
 		if err != nil {
 			s.Log.WithField("error", err).Debug("Error running regex on colour string.")
 			return
@@ -160,6 +155,6 @@ func roleColorHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			return
 		}
 
-		s.Session.ChannelMessageSend(m.ChannelID, "msgRoleName"+"'s colour set to "+parts[1]+".")
+		s.Session.ChannelMessageSend(m.ChannelID, "msgRoleName"+"'s colour set to "+parts[2]+".")
 	}
 }

@@ -49,17 +49,14 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 	// Check if user has Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
-		msg := m.Content
-		msgParts := strings.Split(msg, " ")
-
-		msgRoleName, parts := utils.GetStringFromParts(msgParts)
-		if msgRoleName == "" || len(parts) != 2 {
-			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", msgParts))
+		parts := utils.GetStringFromQuotes(strings.Split(m.Content, " "))
+		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", parts))
 			return
 		}
 
 		// Get the user using the 2nd argument. (The username).
-		userID := utils.ExtractUserIDFromMention(parts[1])
+		userID := utils.ExtractUserIDFromMention(parts[2])
 		user, err := s.Session.User(userID)
 		if err != nil {
 			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
@@ -84,7 +81,7 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if strings.ToLower(role.Name) == strings.ToLower(msgRoleName) {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[1]) {
 					exists = true
 					roleID = role.ID
 				}
@@ -92,11 +89,11 @@ func setRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" does not exist.")
 			return
 		}
 		s.Session.GuildMemberRoleAdd(channel.GuildID, m.Author.ID, roleID)
-		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" has been added to "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" has been added to "+user.Mention())
 	}
 }
 
@@ -110,17 +107,14 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 	// Check whether a user has the Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
-		msg := m.Content
-		msgParts := strings.Split(msg, " ")
-
-		msgRoleName, parts := utils.GetStringFromParts(msgParts)
-		if msgRoleName == "" || len(parts) != 2 {
-			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", msgParts))
+		parts := utils.GetStringFromQuotes(strings.Split(m.Content, " "))
+		if len(parts) != 3 {
+			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", parts))
 			return
 		}
 
 		// Get the user using the 2nd argument. (The username).
-		userID := utils.ExtractUserIDFromMention(parts[1])
+		userID := utils.ExtractUserIDFromMention(parts[2])
 		user, err := s.Session.User(userID)
 		if err != nil {
 			s.Session.ChannelMessageSend(m.ChannelID, "Username invalid.")
@@ -145,7 +139,7 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		var roleID string
 		for _, role := range roles {
 			if !exists {
-				if strings.ToLower(role.Name) == strings.ToLower(msgRoleName) {
+				if strings.ToLower(role.Name) == strings.ToLower(parts[1]) {
 					exists = true
 					roleID = role.ID
 				}
@@ -153,11 +147,11 @@ func removeRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		}
 
 		if !exists {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" does not exist.")
+			s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" does not exist.")
 			return
 		}
 		s.Session.GuildMemberRoleRemove(channel.GuildID, m.Author.ID, roleID)
-		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+msgRoleName+"\" has been removed from "+user.Mention())
+		s.Session.ChannelMessageSend(m.ChannelID, "Role \""+parts[1]+"\" has been removed from "+user.Mention())
 	}
 }
 
@@ -170,8 +164,7 @@ func removeAllRolesHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
-		msg := m.Content
-		parts := strings.Split(msg, " ")
+		parts := strings.Split(m.Content, " ")
 
 		// Check if there are 2 arguments.
 		if len(parts) != 2 {
