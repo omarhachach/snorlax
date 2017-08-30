@@ -123,7 +123,7 @@ func deleteRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		exists := false
 		var roleID string
 		for _, role := range roles {
-			if !exists && role.Name == msgRoleName {
+			if !exists && strings.ToLower(role.Name) == strings.ToLower(msgRoleName) {
 				exists = true
 				roleID = role.ID
 			}

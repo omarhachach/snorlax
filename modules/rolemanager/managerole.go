@@ -55,7 +55,7 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		exists := false
 		var role *discordgo.Role
 		for _, checkRole := range roles {
-			if !exists && checkRole.Name == msgRoleName {
+			if !exists && strings.ToLower(checkRole.Name) == strings.ToLower(msgRoleName) {
 				exists = true
 				role = checkRole
 			}
