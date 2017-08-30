@@ -36,7 +36,7 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		msgRoleName, parts := utils.GetStringFromParts(msgParts)
 		if msgRoleName == "" || len(parts) != 2 {
-			s.Log.Debug(fmt.Sprintf("Not enough arguments: %v", msgParts))
+			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", msgParts))
 			return
 		}
 
@@ -48,7 +48,7 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		roles, err := s.Session.GuildRoles(channel.GuildID)
 		if err != nil {
-			s.Log.WithField("error", err).Debug("Error getting Guild Roles.")
+			s.Log.WithField("error", err).Debug("Error getting guild roles.")
 			return
 		}
 
@@ -69,7 +69,7 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 		hoist, err := strconv.ParseBool(parts[1])
 		if err != nil {
 			s.Session.ChannelMessageSend(m.ChannelID, "Hoist value isn't valid.")
-			s.Log.WithField("error", err).Debug("Error parsing hoist boolean.")
+			s.Log.WithField("error", err).Debug("Error parsing hoist value.")
 			return
 		}
 
@@ -79,10 +79,6 @@ func roleHoistHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if hoist {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role "+msgRoleName+" hoisting value set to true.")
-		} else {
-			s.Session.ChannelMessageSend(m.ChannelID, "Role "+msgRoleName+" hoisting value set to false.")
-		}
+		s.Session.ChannelMessageSend(m.ChannelID, "Hoist value for "+msgRoleName+" set to "+strconv.FormatBool(hoist)+".")
 	}
 }

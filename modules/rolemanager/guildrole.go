@@ -46,7 +46,7 @@ func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		msgRoleName, parts := utils.GetStringFromParts(msgParts)
 		if msgRoleName == "" || len(parts) != 3 {
-			s.Log.Debug(fmt.Sprintf("Not enough arguments: %v", msgParts))
+			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", msgParts))
 			return
 		}
 
@@ -58,12 +58,17 @@ func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		role, err := s.Session.GuildRoleCreate(channel.GuildID)
 		if err != nil {
-			s.Log.WithField("error", err).Debug("Error creating GuildRole.")
+			s.Log.WithField("error", err).Debug("Error creating guild role.")
 			return
 		}
 
 		colourIsValid, err := regexp.MatchString("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", parts[1])
-		if !colourIsValid || err != nil {
+		if err != nil {
+			s.Log.WithField("error", err).Debug("Error running regex on colour string.")
+			return
+		}
+
+		if !colourIsValid {
 			s.Session.ChannelMessageSend(m.ChannelID, "Colour isn't valid.")
 			return
 		}
@@ -76,7 +81,8 @@ func createRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		hoist, err := strconv.ParseBool(parts[2])
 		if err != nil {
-			s.Session.ChannelMessageSend(m.ChannelID, "Seperate display value isn't a boolean (true or false).")
+			s.Session.ChannelMessageSend(m.ChannelID, "Hoist value isn't a boolean (true or false).")
+			s.Log.WithField("error", err).Debug("Error parsing hoist value.")
 			return
 		}
 
@@ -104,7 +110,7 @@ func deleteRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		msgRoleName, parts := utils.GetStringFromParts(msgParts)
 		if msgRoleName == "" || len(parts) != 1 {
-			s.Log.Debug(fmt.Sprintf("Not enough arguments: %v", msgParts))
+			s.Log.Debug(fmt.Sprintf("Wrong number of args: %v", msgParts))
 			return
 		}
 
@@ -116,7 +122,7 @@ func deleteRoleHandler(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 
 		roles, err := s.Session.GuildRoles(channel.GuildID)
 		if err != nil {
-			s.Log.WithField("error", err).Debug("Error getting Guild Roles.")
+			s.Log.WithField("error", err).Debug("Error getting guild roles.")
 			return
 		}
 
