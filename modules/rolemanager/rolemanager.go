@@ -13,6 +13,7 @@ var (
 func GetModule() *snorlax.Module {
 	return &snorlax.Module{
 		Name:     moduleName,
+		Desc:     "This module gives you the ability to manage roles via the bot.",
 		Commands: commands,
 	}
 }
