@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"strings"
 )
 
@@ -13,35 +12,47 @@ func ExtractUserIDFromMention(mention string) string {
 // GetStringFromQuotes finds a "string which spans multiple spaces" in a split message.
 // Then takes that and replaces the Quote string with a single string value of the quote contents.
 func GetStringFromQuotes(parts []string) []string {
-	found := false
-	var buffer bytes.Buffer
-	var newParts []string
+	var (
+		// found is for controlling the loop-
+		found bool
+		// str is the string we're searching for in quotes.
+		str string
+		// startQuote holds the location of the quote
+		startQuote int
+	)
 
-	for _, val := range parts {
+	for k, val := range parts {
 		if !found {
-			if val[0] == '"' {
+			if str == "" && val[0] == '"' {
+				// startQuote location is equal the index of the current value.
+				startQuote = k
+				if val[len(val)-1] == '"' {
+					// The string has been found, mark this so it stops looping.
+					found = true
+					// Since the quoted message is in one location in the slice, we'll just remove the quotes and replace it.
+					parts[k] = val[:len(val)-1][1:]
+				} else {
+					str = str + val[1:] + " "
+				}
+				// If string isn't started just skip.
+			} else if str != "" {
+				// If last char of val is a quote, finish the string search.
 				if val[len(val)-1] == '"' {
 					found = true
-					buffer.WriteString(val[:len(val)-1][1:])
-					newParts = append(newParts, buffer.String())
+					// Explanation: append the result of append(parts[:startQuote], str+" "+val[:len(val)-1]) with parts[k+1:]...
+					// First in append(parts[:startQuote], str+" "+val[:len(val)-1]) we're appending parts[:startQuote]
+					// parts[:startQuote] is contents of parts which came before where the first quote started.
+					// Then we're appending the quoted message, which we've extracted.
+					// We're taking this new slice (parts[:startQuote] + the quoted message) and appending parts[k+1:]...
+					// parts[k+1:]... is the contents of parts which came before the last quote.
+					// The last quote location is in the current index (stored in var k).
+					parts = append(append(parts[:startQuote], str+val[:len(val)-1]), parts[k+1:]...)
 				} else {
-					buffer.WriteString(val[1:])
+					str = str + val + " "
 				}
-			} else if buffer.Len() != 0 {
-				if val[len(val)-1] == '"' {
-					found = true
-					buffer.WriteString(" " + val[:len(val)-1])
-					newParts = append(newParts, buffer.String())
-				} else {
-					buffer.WriteString(" " + val)
-				}
-			} else {
-				newParts = append(newParts, val)
 			}
-		} else {
-			newParts = append(newParts, val)
 		}
 	}
 
-	return newParts
+	return parts
 }
