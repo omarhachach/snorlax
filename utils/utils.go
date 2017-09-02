@@ -13,7 +13,7 @@ func ExtractUserIDFromMention(mention string) string {
 // Then takes that and replaces the Quote string with a single string value of the quote contents.
 func GetStringFromQuotes(parts []string) []string {
 	var (
-		// found is for controlling the loop-
+		// found is for controlling the loop.
 		found bool
 		// str is the string we're searching for in quotes.
 		str string
