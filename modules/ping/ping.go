@@ -30,6 +30,7 @@ func ping(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
 func GetModule() *snorlax.Module {
 	return &snorlax.Module{
 		Name:     moduleName,
+		Desc:     "Ping has a single command; .ping",
 		Commands: commands,
 	}
 }

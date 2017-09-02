@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var reservedCommands = map[string]*Command{}
+var internalModules = map[string]*internalModule{}
 
 // Snorlax is the bot type.
 type Snorlax struct {
@@ -27,13 +27,23 @@ type Config struct {
 
 // New returns a new bot type.
 func New(token string, config *Config) *Snorlax {
-	return &Snorlax{
+	s := &Snorlax{
 		Commands: map[string]*Command{},
 		Modules:  map[string]*Module{},
 		Log:      logrus.New(),
 		token:    token,
 		config:   config,
 	}
+
+	for _, internalModule := range internalModules {
+		s.RegisterModule(&Module{
+			Name:     internalModule.Name,
+			Desc:     internalModule.Desc,
+			Commands: internalModule.Commands,
+		})
+	}
+
+	return s
 }
 
 // RegisterModule allows you to register a module to expand the bot.
@@ -52,6 +62,9 @@ func (s *Snorlax) RegisterModule(module *Module) {
 			return
 		}
 
+		s.Log.Debug("Registered Command: " + command.Command)
+		s.Commands[command.Command] = command
+
 		if command.Alias != "" {
 			existingAlias, aliasExist := s.Commands[command.Alias]
 			if aliasExist {
@@ -63,9 +76,6 @@ func (s *Snorlax) RegisterModule(module *Module) {
 			s.Log.Debug("Registered Alias: " + command.Alias)
 			s.Commands[command.Alias] = command
 		}
-
-		s.Log.Debug("Registered Command: " + command.Command)
-		s.Commands[command.Command] = command
 	}
 
 	s.Modules[module.Name] = module
@@ -74,6 +84,12 @@ func (s *Snorlax) RegisterModule(module *Module) {
 
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
+	for _, internalModule := range internalModules {
+		if internalModule.Init != nil {
+			internalModule.Init(s)
+		}
+	}
+
 	discord, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
