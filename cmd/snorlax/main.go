@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var (
-		token = flag.String("t", "", "Discord Bot Authentication Token")
+		token = flag.String("token", "", "Discord Bot Authentication Token")
 		debug = flag.Bool("debug", false, "Debug Mode")
 	)
 	flag.Parse()

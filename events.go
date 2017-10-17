@@ -17,7 +17,7 @@ func onMessageCreate(s *Snorlax) func(sess *discordgo.Session, m *discordgo.Mess
 
 		c, ok := s.Commands[msgCommand]
 		if ok {
-			c.Handler(s, m)
+			go c.Handler(s, m)
 		}
 	}
 }
