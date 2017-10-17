@@ -10,12 +10,6 @@ type Module struct {
 	Name     string
 	Desc     string
 	Commands map[string]*Command
-}
-
-type internalModule struct {
-	Name     string
-	Desc     string
-	Commands map[string]*Command
 	Init     func(*Snorlax)
 }
 

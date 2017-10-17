@@ -3,12 +3,13 @@ package snorlax
 import (
 	"os"
 	"os/signal"
+	"sync"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
 )
 
-var internalModules = map[string]*internalModule{}
+var internalModules = map[string]*Module{}
 
 // Snorlax is the bot type.
 type Snorlax struct {
@@ -18,6 +19,7 @@ type Snorlax struct {
 	Log      *logrus.Logger
 	token    string
 	config   *Config
+	sync.Mutex
 }
 
 // Config holds the options for the bot.
@@ -36,11 +38,7 @@ func New(token string, config *Config) *Snorlax {
 	}
 
 	for _, internalModule := range internalModules {
-		s.RegisterModule(&Module{
-			Name:     internalModule.Name,
-			Desc:     internalModule.Desc,
-			Commands: internalModule.Commands,
-		})
+		go s.RegisterModule(internalModule)
 	}
 
 	return s
@@ -48,6 +46,8 @@ func New(token string, config *Config) *Snorlax {
 
 // RegisterModule allows you to register a module to expand the bot.
 func (s *Snorlax) RegisterModule(module *Module) {
+	s.Mutex.Lock()
+	defer s.Mutex.Unlock()
 	_, moduleExist := s.Modules[module.Name]
 	if moduleExist {
 		s.Log.Error("Failed to load module: " + module.Name + ".\nModule with same name has already been registered.")
@@ -84,12 +84,17 @@ func (s *Snorlax) RegisterModule(module *Module) {
 
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
-	for _, internalModule := range internalModules {
-		if internalModule.Init != nil {
-			internalModule.Init(s)
+	go func() {
+		s.Mutex.Lock()
+		for _, internalModule := range internalModules {
+			if internalModule.Init != nil {
+				go internalModule.Init(s)
+			}
 		}
-	}
+		s.Mutex.Unlock()
+	}()
 
+	s.Mutex.Lock()
 	discord, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
@@ -114,6 +119,7 @@ func (s *Snorlax) Start() {
 
 	s.Log.Info("Snorlax has been woken!")
 
+	s.Mutex.Unlock()
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
 	<-c
