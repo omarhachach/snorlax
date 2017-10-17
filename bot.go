@@ -84,12 +84,17 @@ func (s *Snorlax) RegisterModule(module *Module) {
 
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
-	for _, internalModule := range internalModules {
-		if internalModule.Init != nil {
-			internalModule.Init(s)
+	go func() {
+		s.Mutex.Lock()
+		for _, internalModule := range internalModules {
+			if internalModule.Init != nil {
+				go internalModule.Init(s)
+			}
 		}
-	}
+		s.Mutex.Unlock()
+	}()
 
+	s.Mutex.Lock()
 	discord, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{

@@ -4,6 +4,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var helpMessage string
+
 func init() {
 	moduleName := "Help"
 	commands := map[string]*Command{}
