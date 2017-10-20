@@ -37,6 +37,10 @@ func New(token string, config *Config) *Snorlax {
 		config:   config,
 	}
 
+	if s.config.Debug {
+		s.Log.SetLevel(logrus.DebugLevel)
+	}
+
 	for _, internalModule := range internalModules {
 		go s.RegisterModule(internalModule)
 	}
@@ -106,9 +110,6 @@ func (s *Snorlax) Start() {
 
 	s.Session.AddHandler(onMessageCreate(s))
 
-	if s.config.Debug {
-		s.Log.SetLevel(logrus.DebugLevel)
-	}
 	err = s.Session.Open()
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
