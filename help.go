@@ -1,9 +1,5 @@
 package snorlax
 
-import (
-	"github.com/bwmarrin/discordgo"
-)
-
 var helpMessage string
 
 func init() {
@@ -38,6 +34,6 @@ func helpInit(s *Snorlax) {
 	}
 }
 
-func helpHandler(s *Snorlax, m *discordgo.MessageCreate) {
+func helpHandler(ctx Context) {
 
 }

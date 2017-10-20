@@ -1,9 +1,5 @@
 package snorlax
 
-import (
-	"github.com/bwmarrin/discordgo"
-)
-
 // Module is used to import a modular package into the bot.
 // This serves to make the bot modular and expandable.
 type Module struct {
@@ -20,5 +16,5 @@ type Command struct {
 	Desc       string
 	Usage      string
 	ModuleName string
-	Handler    func(*Snorlax, *discordgo.MessageCreate)
+	Handler    func(Context)
 }
