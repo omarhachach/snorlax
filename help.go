@@ -5,13 +5,13 @@ var helpMessage string
 func init() {
 	moduleName := "Help"
 	commands := map[string]*Command{}
-
 	helpCommand := &Command{
-		Command: ".help",
-		Alias:   ".h",
-		Desc:    "Help shows you a help menu for a given module, or a list of modules.",
-		Usage:   ".help [module-name]",
-		Handler: helpHandler,
+		Command:    ".help",
+		Alias:      ".h",
+		Desc:       "Help shows you a help menu for a given module, or a list of modules.",
+		Usage:      ".help [module-name]",
+		ModuleName: moduleName,
+		Handler:    helpHandler,
 	}
 
 	commands[helpCommand.Command] = helpCommand
@@ -19,7 +19,6 @@ func init() {
 	helpModule := &Module{
 		Name:     moduleName,
 		Commands: commands,
-		Init:     helpInit,
 	}
 
 	internalModules[helpModule.Name] = helpModule
