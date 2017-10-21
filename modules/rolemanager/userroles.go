@@ -89,7 +89,7 @@ func setRoleHandler(ctx snorlax.Context) {
 		}
 
 		if !exists {
-			ctx.SendErrorMessage("Role \"" + parts[2] + "\" does not exist.")
+			ctx.SendErrorMessage(user.Mention() + " doesn't have role \"" + parts[2] + "\".")
 			return
 		}
 
@@ -153,7 +153,7 @@ func removeRoleHandler(ctx snorlax.Context) {
 		}
 
 		if !exists {
-			ctx.SendErrorMessage("Role \"" + parts[2] + "\" does not exist.")
+			ctx.SendErrorMessage(user.Mention() + " doesn't have role \"" + parts[2] + "\".")
 			return
 		}
 
