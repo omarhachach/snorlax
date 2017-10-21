@@ -1,7 +1,8 @@
 package ping
 
 import (
-	"github.com/bwmarrin/discordgo"
+	"time"
+
 	"github.com/omar-h/snorlax"
 )
 
@@ -22,14 +23,22 @@ func init() {
 	commands[pingCommand.Command] = pingCommand
 }
 
-func ping(s *snorlax.Snorlax, m *discordgo.MessageCreate) {
-	s.Session.ChannelMessageSend(m.ChannelID, "Pong! "+m.Author.Mention())
+func ping(ctx snorlax.Context) {
+	msgTime, err := ctx.MessageCreate.Message.Timestamp.Parse()
+	if err != nil {
+		ctx.Log.WithError(err).Error("ping: error parsing timestamp")
+		return
+	}
+
+	msg := "Pong " + time.Since(msgTime).Round(time.Millisecond).String() + "!"
+	ctx.SendMessage(msg, snorlax.InfoColor)
 }
 
 // GetModule returns the Module
 func GetModule() *snorlax.Module {
 	return &snorlax.Module{
 		Name:     moduleName,
+		Desc:     "Ping has a single command; .ping",
 		Commands: commands,
 	}
 }

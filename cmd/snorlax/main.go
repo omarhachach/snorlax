@@ -8,13 +8,16 @@ import (
 	"github.com/omar-h/snorlax/modules/rolemanager"
 )
 
-func main() {
-	var (
-		token = flag.String("t", "", "Discord Bot Authentication Token")
-		debug = flag.Bool("debug", false, "Debug Mode")
-	)
-	flag.Parse()
+var (
+	token = flag.String("token", "", "Discord Bot Authentication Token")
+	debug = flag.Bool("debug", false, "Debug Mode")
+)
 
+func init() {
+	flag.Parse()
+}
+
+func main() {
 	bot := snorlax.New(*token, &snorlax.Config{
 		Debug: *debug,
 	})

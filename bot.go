@@ -3,10 +3,13 @@ package snorlax
 import (
 	"os"
 	"os/signal"
+	"sync"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
 )
+
+var internalModules = map[string]*Module{}
 
 // Snorlax is the bot type.
 type Snorlax struct {
@@ -16,6 +19,7 @@ type Snorlax struct {
 	Log      *logrus.Logger
 	token    string
 	config   *Config
+	sync.Mutex
 }
 
 // Config holds the options for the bot.
@@ -25,17 +29,29 @@ type Config struct {
 
 // New returns a new bot type.
 func New(token string, config *Config) *Snorlax {
-	return &Snorlax{
+	s := &Snorlax{
 		Commands: map[string]*Command{},
 		Modules:  map[string]*Module{},
 		Log:      logrus.New(),
 		token:    token,
 		config:   config,
 	}
+
+	if s.config.Debug {
+		s.Log.SetLevel(logrus.DebugLevel)
+	}
+
+	for _, internalModule := range internalModules {
+		go s.RegisterModule(internalModule)
+	}
+
+	return s
 }
 
 // RegisterModule allows you to register a module to expand the bot.
 func (s *Snorlax) RegisterModule(module *Module) {
+	s.Mutex.Lock()
+	defer s.Mutex.Unlock()
 	_, moduleExist := s.Modules[module.Name]
 	if moduleExist {
 		s.Log.Error("Failed to load module: " + module.Name + ".\nModule with same name has already been registered.")
@@ -50,6 +66,9 @@ func (s *Snorlax) RegisterModule(module *Module) {
 			return
 		}
 
+		s.Log.Debug("Registered Command: " + command.Command)
+		s.Commands[command.Command] = command
+
 		if command.Alias != "" {
 			existingAlias, aliasExist := s.Commands[command.Alias]
 			if aliasExist {
@@ -61,9 +80,6 @@ func (s *Snorlax) RegisterModule(module *Module) {
 			s.Log.Debug("Registered Alias: " + command.Alias)
 			s.Commands[command.Alias] = command
 		}
-
-		s.Log.Debug("Registered Command: " + command.Command)
-		s.Commands[command.Command] = command
 	}
 
 	s.Modules[module.Name] = module
@@ -72,6 +88,17 @@ func (s *Snorlax) RegisterModule(module *Module) {
 
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
+	go func() {
+		s.Mutex.Lock()
+		for _, internalModule := range internalModules {
+			if internalModule.Init != nil {
+				go internalModule.Init(s)
+			}
+		}
+		s.Mutex.Unlock()
+	}()
+
+	s.Mutex.Lock()
 	discord, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
@@ -83,9 +110,6 @@ func (s *Snorlax) Start() {
 
 	s.Session.AddHandler(onMessageCreate(s))
 
-	if s.config.Debug {
-		s.Log.SetLevel(logrus.DebugLevel)
-	}
 	err = s.Session.Open()
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
@@ -96,6 +120,7 @@ func (s *Snorlax) Start() {
 
 	s.Log.Info("Snorlax has been woken!")
 
+	s.Mutex.Unlock()
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
 	<-c
