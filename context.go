@@ -32,12 +32,12 @@ func (ctx Context) SendMessage(msg string, color int) (*discordgo.Message, error
 }
 
 // SendErrorMessage is a quick way to send an error.
-// It will suffix the message with a mention to the message creator.
+// -scrapped- It will suffix the message with a mention to the message creator.
 func (ctx Context) SendErrorMessage(msg string) (*discordgo.Message, error) {
-	if msg[len(msg)-1:] != " " {
-		msg += " "
-	}
-	msg += ctx.MessageCreate.Author.Mention()
+	//if msg[len(msg)-1:] != " " {
+	//	msg += " "
+	//}
+	//msg += ctx.MessageCreate.Author.Mention()
 
 	return ctx.SendMessage(msg, ErrorColor)
 }
