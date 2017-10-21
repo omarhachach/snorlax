@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"errors"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -28,10 +31,6 @@ func GetStringFromQuotes(parts []string) []string {
 	startQuote = -1
 	val := ""
 	for k := 0; k < length; k++ {
-		if length <= k+1 {
-			return parts
-		}
-
 		val = parts[k]
 		switch {
 		// If a startQuote hasn't been found, and the first byte is a quote,
@@ -66,4 +65,26 @@ func GetStringFromQuotes(parts []string) []string {
 	}
 
 	return parts
+}
+
+var hexColorRegex = regexp.MustCompile("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
+
+// This holds the errors that HexColorToInt will throw.
+var (
+	ErrColorInvalid = errors.New("hex code is invalid")
+)
+
+// HexColorToInt converts a hex color code to an int, which is usable in the
+// Discord API. The hexCode is without the "#" prefix.
+func HexColorToInt(hexCode string) (int, error) {
+	if !hexColorRegex.MatchString(hexCode) {
+		return 0, ErrColorInvalid
+	}
+
+	color, err := strconv.ParseInt(hexCode, 16, 32)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(color), nil
 }
