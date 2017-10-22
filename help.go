@@ -1,38 +1,167 @@
 package snorlax
 
-var helpMessage string
+import (
+	"math"
+	"strconv"
+	"strings"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/omar-h/snorlax/utils"
+)
 
 func init() {
-	moduleName := "Help"
-	commands := map[string]*Command{}
+	helpModule := &Module{
+		Name:     "Help",
+		Desc:     "Help gives information about a command, or displays a list of commands/modules.",
+		Commands: map[string]*Command{},
+		Init:     helpInit,
+	}
+
 	helpCommand := &Command{
 		Command:    ".help",
 		Alias:      ".h",
 		Desc:       "Help shows you a help menu for a given module, or a list of modules.",
-		Usage:      ".help [module-name]",
-		ModuleName: moduleName,
+		Usage:      ".help [command/module] [page]",
+		ModuleName: helpModule.Name,
 		Handler:    helpHandler,
 	}
 
-	commands[helpCommand.Command] = helpCommand
-
-	helpModule := &Module{
-		Name:     moduleName,
-		Commands: commands,
-	}
+	helpModule.Commands[helpCommand.Command] = helpCommand
 
 	internalModules[helpModule.Name] = helpModule
 }
 
-// moduleCommands holds a list of modules, with their respective commands.
-var moduleCommands = map[string]map[string]*Command{}
+var (
+	helpModules        *discordgo.MessageEmbed
+	helpModuleCommands = map[string][]*discordgo.MessageEmbed{}
+)
 
 func helpInit(s *Snorlax) {
+	botCommands = s.Commands
+
+	helpModuleList := ""
+	noDescList := ""
+
 	for _, module := range s.Modules {
-		moduleCommands[module.Name] = module.Commands
+		if module.Desc != "" {
+			helpModuleList += module.Name + " - " + module.Desc + "\n"
+		} else {
+			noDescList += module.Name + "\n"
+		}
+
+		numOfPages := int(math.Ceil(float64(len(module.Commands)) / float64(20)))
+		commandPages := make([]*discordgo.MessageEmbed, 0, numOfPages)
+
+		for i := 0; i < numOfPages; i++ {
+			commandPages = append(commandPages, &discordgo.MessageEmbed{
+				Color: InfoColor,
+				Fields: []*discordgo.MessageEmbedField{
+					&discordgo.MessageEmbedField{
+						Name:   "Command - Description",
+						Value:  "",
+						Inline: false,
+					},
+				},
+				Footer: &discordgo.MessageEmbedFooter{
+					Text: "Use `.help [command]` for help on a command.",
+				},
+			})
+		}
+
+		n := 0
+		for _, command := range module.Commands {
+			n++
+			page := int(math.Floor(float64(n) / float64(20)))
+
+			commandPages[page].Fields[0].Value += command.Command + " - " + command.Desc + "\n"
+		}
+
+		helpModuleCommands[strings.ToLower(module.Name)] = commandPages
+	}
+	helpModuleList += noDescList
+
+	helpModules = &discordgo.MessageEmbed{
+		Color: InfoColor,
+		Fields: []*discordgo.MessageEmbedField{
+			&discordgo.MessageEmbedField{
+				Name:   "Module Name - Description",
+				Value:  helpModuleList,
+				Inline: false,
+			},
+		},
+		Footer: &discordgo.MessageEmbedFooter{},
 	}
 }
 
-func helpHandler(ctx Context) {
+var botCommands map[string]*Command
 
+var footText = false
+
+func helpHandler(ctx Context) {
+	if strings.Index(ctx.MessageCreate.Content, " ") == 0 {
+		ctx.SendEmbed(helpModules)
+		return
+	}
+
+	parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
+
+	switch len(parts) {
+	case 1:
+		footText = !footText
+		if footText {
+			helpModules.Footer.Text = "Use `.help [module]` to show a list of command for a module."
+		} else {
+			helpModules.Footer.Text = "TIP: Surround the module's name with \"quotes\" if it spans multiple spaces."
+		}
+		ctx.SendEmbed(helpModules)
+		return
+	case 2:
+		command, ok := botCommands[strings.ToLower("."+parts[1])]
+		if !ok {
+			commandList, ok := helpModuleCommands[strings.ToLower(parts[1])]
+			if !ok {
+				ctx.SendErrorMessage("Command or module \"" + parts[1] + "\" does not exist.")
+				return
+			}
+
+			ctx.SendEmbed(commandList[0])
+			return
+		}
+
+		ctx.SendEmbed(&discordgo.MessageEmbed{
+			Color: InfoColor,
+			Fields: []*discordgo.MessageEmbedField{
+				&discordgo.MessageEmbedField{
+					Name:   "Command Usage",
+					Value:  command.Usage,
+					Inline: false,
+				},
+			},
+		})
+		return
+	case 3:
+		commandList, ok := helpModuleCommands[strings.ToLower(parts[1])]
+		if !ok {
+			ctx.SendErrorMessage("Module \"" + parts[1] + "\" does not exist.")
+			return
+		}
+
+		pageNum, err := strconv.Atoi(parts[2])
+		if err != nil {
+			ctx.SendErrorMessage("\"" + parts[2] + "\"isn't a valid number.")
+			ctx.Log.WithError(err).Debug("Error parsing number.")
+			return
+		}
+
+		if len(commandList) < pageNum {
+			ctx.SendErrorMessage("Module \"" + parts[1] + "\" only has " + strconv.Itoa(len(commandList)) + " page(s).")
+			return
+		}
+
+		ctx.SendEmbed(commandList[pageNum-1])
+		return
+	default:
+		ctx.Log.Debugf("Wrong number of args: %#v", parts)
+		return
+	}
 }

@@ -21,6 +21,11 @@ const (
 	InfoColor    int = 2201331
 )
 
+// SendEmbed sends a custom embed message.
+func (ctx Context) SendEmbed(embed *discordgo.MessageEmbed) (*discordgo.Message, error) {
+	return ctx.Session.ChannelMessageSendEmbed(ctx.ChannelID, embed)
+}
+
 // SendMessage sends an embed message with a message and color.
 func (ctx Context) SendMessage(msg string, color int) (*discordgo.Message, error) {
 	messageEmbed := &discordgo.MessageEmbed{
@@ -28,7 +33,7 @@ func (ctx Context) SendMessage(msg string, color int) (*discordgo.Message, error
 		Description: msg,
 	}
 
-	return ctx.Session.ChannelMessageSendEmbed(ctx.ChannelID, messageEmbed)
+	return ctx.SendEmbed(messageEmbed)
 }
 
 // SendErrorMessage is a quick way to send an error.
