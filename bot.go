@@ -25,6 +25,9 @@ type Snorlax struct {
 // Config holds the options for the bot.
 type Config struct {
 	Debug bool
+	// DeleteMsg determines whether or not to automatically delete a command
+	// after it has been recieved.
+	DeleteMsg bool
 }
 
 // New returns a new bot type.

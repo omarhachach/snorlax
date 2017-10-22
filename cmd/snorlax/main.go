@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	token = flag.String("token", "", "Discord Bot Authentication Token")
-	debug = flag.Bool("debug", false, "Debug Mode")
+	token      = flag.String("token", "", "Discord Bot Authentication Token")
+	debug      = flag.Bool("debug", false, "Debug Mode")
+	autoDelete = flag.Bool("delete", false, "Auto Delete Mode")
 )
 
 func init() {
@@ -19,7 +20,8 @@ func init() {
 
 func main() {
 	bot := snorlax.New(*token, &snorlax.Config{
-		Debug: *debug,
+		Debug:     *debug,
+		DeleteMsg: *autoDelete,
 	})
 
 	bot.RegisterModule(ping.GetModule())

@@ -17,6 +17,15 @@ func onMessageCreate(s *Snorlax) func(sess *discordgo.Session, m *discordgo.Mess
 
 		c, ok := s.Commands[msgCommand]
 		if ok {
+			if s.config.DeleteMsg {
+				go func() {
+					err := s.Session.ChannelMessageDelete(m.ChannelID, m.ID)
+					if err != nil {
+						s.Log.WithError(err).Error("Error automatically deleting message.")
+					}
+				}()
+			}
+
 			go c.Handler(Context{
 				Log:           s.Log,
 				Session:       sess,
