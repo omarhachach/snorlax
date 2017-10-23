@@ -42,11 +42,11 @@ func helpInit(s *Snorlax) {
 	helpModuleList := ""
 	noDescList := ""
 
-	for _, module := range s.Modules {
+	for moduleName, module := range s.Modules {
 		if module.Desc != "" {
-			helpModuleList += module.Name + " - " + module.Desc + "\n"
+			helpModuleList += moduleName + " - " + module.Desc + "\n"
 		} else {
-			noDescList += module.Name + "\n"
+			noDescList += moduleName + "\n"
 		}
 
 		numOfPages := int(math.Ceil(float64(len(module.Commands)) / float64(20)))
@@ -69,14 +69,15 @@ func helpInit(s *Snorlax) {
 		}
 
 		n := 0
-		for _, command := range module.Commands {
+		for commandName, command := range module.Commands {
 			n++
 			page := int(math.Floor(float64(n) / float64(20)))
 
-			commandPages[page].Fields[0].Value += command.Command + " - " + command.Desc + "\n"
+			commandPages[page].Fields[0].Name = "Command - Description [" + strconv.Itoa(page+1) + "/" + strconv.Itoa(numOfPages) + "]"
+			commandPages[page].Fields[0].Value += commandName + " - " + command.Desc + "\n"
 		}
 
-		helpModuleCommands[strings.ToLower(module.Name)] = commandPages
+		helpModuleCommands[strings.ToLower(moduleName)] = commandPages
 	}
 	helpModuleList += noDescList
 
@@ -109,7 +110,7 @@ func helpHandler(ctx Context) {
 	case 1:
 		footText = !footText
 		if footText {
-			helpModules.Footer.Text = "Use `.help [module]` to show a list of command for a module."
+			helpModules.Footer.Text = "Use `.help [module] [page]` to show a list of command for a module."
 		} else {
 			helpModules.Footer.Text = "TIP: Surround the module's name with \"quotes\" if it spans multiple spaces."
 		}

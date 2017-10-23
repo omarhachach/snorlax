@@ -61,16 +61,16 @@ func (s *Snorlax) RegisterModule(module *Module) {
 		return
 	}
 
-	for _, command := range module.Commands {
+	for commandName, command := range module.Commands {
 		existingCommand, commandExist := s.Commands[command.Command]
 		if commandExist {
 			s.Log.Error("Failed to load module: " + module.Name +
-				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + command.Command)
+				".\nModule " + existingCommand.ModuleName + "has already registered command/alias: " + commandName)
 			return
 		}
 
-		s.Log.Debug("Registered Command: " + command.Command)
-		s.Commands[command.Command] = command
+		s.Log.Debug("Registered Command: " + commandName)
+		s.Commands[commandName] = command
 
 		if command.Alias != "" {
 			existingAlias, aliasExist := s.Commands[command.Alias]
@@ -93,15 +93,14 @@ func (s *Snorlax) RegisterModule(module *Module) {
 func (s *Snorlax) Start() {
 	go func() {
 		s.Mutex.Lock()
-		for _, internalModule := range internalModules {
-			if internalModule.Init != nil {
-				go internalModule.Init(s)
+		for _, module := range s.Modules {
+			if module.Init != nil {
+				go module.Init(s)
 			}
 		}
 		s.Mutex.Unlock()
 	}()
 
-	s.Mutex.Lock()
 	discord, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
@@ -123,7 +122,6 @@ func (s *Snorlax) Start() {
 
 	s.Log.Info("Snorlax has been woken!")
 
-	s.Mutex.Unlock()
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
 	<-c
