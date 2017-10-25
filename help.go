@@ -99,11 +99,6 @@ var botCommands map[string]*Command
 var footText = false
 
 func helpHandler(ctx Context) {
-	if strings.Index(ctx.MessageCreate.Content, " ") == 0 {
-		ctx.SendEmbed(helpModules)
-		return
-	}
-
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
 
 	switch len(parts) {
@@ -156,6 +151,11 @@ func helpHandler(ctx Context) {
 
 		if len(commandList) < pageNum {
 			ctx.SendErrorMessage("Module \"" + parts[1] + "\" only has " + strconv.Itoa(len(commandList)) + " page(s).")
+			return
+		}
+
+		if pageNum < 1 {
+			ctx.SendErrorMessage("Please specify a page greater than 0.")
 			return
 		}
 
