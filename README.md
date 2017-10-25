@@ -1,5 +1,5 @@
 # Snorlax
-Snorlax is another "modular" Discord bot, with loads of built in modules.
+Snorlax is another modular Discord bot, with loads of built in modules.
 
 ## Menu
 * [Modules](#modules)
@@ -20,7 +20,7 @@ To get the public bot, you can just click [here]().
 To run it yourself, grab one of the [releases](https://github.com/omar-h/snorlax/releases).<br>
 Once downloaded go to the location of the downloaded binary, and run it like so:
 ```Bash
-$ ./snorlax -t=<your-bot-token>
+$ ./snorlax -token=<your-bot-token>
 ```
 
 ## Commands
@@ -38,11 +38,11 @@ $ go install github.com/omar-h/snorlax/cmd/snorlax
 It will install it in the bin folder in your GOPATH ($GOPATH/bin).<br>
 If you have $GOPATH/bin in your PATH variable, you will be able to run it like so:
 ```Bash
-$ snorlax -t=<your-bot-token>
+$ snorlax -token=<your-bot-token>
 ```
 To run it in debug mode, just add the `-debug` flag:
 ```Bash
-$ snorlax -t=<your-bot-token> -debug
+$ snorlax -token=<your-bot-token> -debug
 ```
 
 ## Contributing
