@@ -11,6 +11,9 @@ import (
 
 var internalModules = map[string]*Module{}
 
+// Version is the Go version.
+const Version = "0.1.0"
+
 // Snorlax is the bot type.
 type Snorlax struct {
 	Commands map[string]*Command
@@ -45,7 +48,7 @@ func New(token string, config *Config) *Snorlax {
 	}
 
 	for _, internalModule := range internalModules {
-		go s.RegisterModule(internalModule)
+		s.RegisterModule(internalModule)
 	}
 
 	return s
