@@ -11,6 +11,8 @@ type Context struct {
 	Log           *logrus.Logger
 	Session       *discordgo.Session
 	MessageCreate *discordgo.MessageCreate
+	Snorlax       *Snorlax
+	State         *discordgo.State
 	ChannelID     string
 }
 
