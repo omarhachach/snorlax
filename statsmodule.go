@@ -19,7 +19,7 @@ func init() {
 		Name:     "Stats",
 		Desc:     "Stats module holds a single command; `.stats`.",
 		Commands: map[string]*Command{},
-		Init:     statsInit,
+		Init:     statsReload,
 	}
 
 	statsCommand := &Command{
@@ -48,7 +48,7 @@ func getDuration(duration time.Duration) string {
 
 var statsMessage string
 
-func statsInit(s *Snorlax) {
+func statsReload(s *Snorlax) {
 	stats := runtime.MemStats{}
 	runtime.ReadMemStats(&stats)
 
@@ -72,5 +72,6 @@ func statsInit(s *Snorlax) {
 }
 
 func statsHandler(ctx Context) {
+	statsReload(ctx.Snorlax)
 	ctx.Session.ChannelMessageSend(ctx.ChannelID, statsMessage)
 }
