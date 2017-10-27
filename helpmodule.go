@@ -99,7 +99,7 @@ var botCommands map[string]*Command
 var footText = false
 
 func helpHandler(ctx Context) {
-	parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
+	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 
 	switch len(parts) {
 	case 1:

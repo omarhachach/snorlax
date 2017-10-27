@@ -33,14 +33,14 @@ func init() {
 }
 
 func createRoleHandler(ctx snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.MessageCreate.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")
 		return
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
-		parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
+		parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 		if len(parts) != 4 {
 			ctx.Log.Debugf("Wrong number of args: %#v", parts)
 			return
@@ -87,14 +87,14 @@ func createRoleHandler(ctx snorlax.Context) {
 }
 
 func deleteRoleHandler(ctx snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.MessageCreate.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")
 		return
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
-		parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
+		parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 		if len(parts) != 4 {
 			ctx.Log.Debugf("Wrong number of args: %#v", parts)
 			return

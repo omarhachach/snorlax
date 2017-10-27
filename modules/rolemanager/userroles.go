@@ -42,14 +42,14 @@ func init() {
 }
 
 func setRoleHandler(ctx snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.MessageCreate.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithField("error", err).Debug("Error getting user permissions.")
 		return
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
-		parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
+		parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 		if len(parts) != 3 {
 			ctx.Log.Debugf("Wrong number of args: %#v", parts)
 			return
@@ -93,7 +93,7 @@ func setRoleHandler(ctx snorlax.Context) {
 			return
 		}
 
-		err = ctx.Session.GuildMemberRoleAdd(channel.GuildID, ctx.MessageCreate.Author.ID, roleID)
+		err = ctx.Session.GuildMemberRoleAdd(channel.GuildID, ctx.Message.Author.ID, roleID)
 		if err != nil {
 			ctx.Log.WithError(err).Debug("Error adding member to role.")
 			return
@@ -104,7 +104,7 @@ func setRoleHandler(ctx snorlax.Context) {
 }
 
 func removeRoleHandler(ctx snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.MessageCreate.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")
 		return
@@ -113,7 +113,7 @@ func removeRoleHandler(ctx snorlax.Context) {
 	// Check whether a user has the Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
-		parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
+		parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 		if len(parts) != 3 {
 			ctx.Log.Debugf("Wrong number of args: %#v", parts)
 			return
@@ -157,7 +157,7 @@ func removeRoleHandler(ctx snorlax.Context) {
 			return
 		}
 
-		err = ctx.Session.GuildMemberRoleRemove(channel.GuildID, ctx.MessageCreate.Author.ID, roleID)
+		err = ctx.Session.GuildMemberRoleRemove(channel.GuildID, ctx.Message.Author.ID, roleID)
 		if err != nil {
 			ctx.Log.WithError(err).Debug("Error removing member from role.")
 			return
@@ -168,7 +168,7 @@ func removeRoleHandler(ctx snorlax.Context) {
 }
 
 func removeAllRolesHandler(ctx snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.MessageCreate.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")
 		return
@@ -177,7 +177,7 @@ func removeAllRolesHandler(ctx snorlax.Context) {
 	// Check whether a user has the Manage Roles permission.
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		// Get the message content and split it into arguments
-		parts := utils.GetStringFromQuotes(strings.Split(ctx.MessageCreate.Content, " "))
+		parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 		if len(parts) != 2 {
 			ctx.Log.Debugf("Wrong number of args: %#v", parts)
 			return

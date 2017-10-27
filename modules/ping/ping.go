@@ -24,7 +24,7 @@ func init() {
 }
 
 func ping(ctx snorlax.Context) {
-	msgTime, err := ctx.MessageCreate.Message.Timestamp.Parse()
+	msgTime, err := ctx.Message.Timestamp.Parse()
 	if err != nil {
 		ctx.Log.WithError(err).Error("ping: error parsing timestamp")
 		return

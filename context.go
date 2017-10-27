@@ -8,12 +8,12 @@ import (
 // Context is the context for command handlers.
 // It serves as a way to unify styles and ease development.
 type Context struct {
-	Log           *logrus.Logger
-	Session       *discordgo.Session
-	MessageCreate *discordgo.MessageCreate
-	Snorlax       *Snorlax
-	State         *discordgo.State
-	ChannelID     string
+	Log       *logrus.Logger
+	Session   *discordgo.Session
+	Message   *discordgo.MessageCreate
+	Snorlax   *Snorlax
+	State     *discordgo.State
+	ChannelID string
 }
 
 // This is a collection of the standard colors used for messages.
