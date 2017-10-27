@@ -32,7 +32,7 @@ func init() {
 	commands[roleColor.Command] = roleColor
 }
 
-func roleHoistHandler(ctx snorlax.Context) {
+func roleHoistHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")
@@ -89,7 +89,7 @@ func roleHoistHandler(ctx snorlax.Context) {
 	}
 }
 
-func roleColorHandler(ctx snorlax.Context) {
+func roleColorHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")

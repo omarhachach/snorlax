@@ -57,7 +57,7 @@ var encOpts = &dca.EncodeOptions{
 	Comment:          "",
 }
 
-func playHandler(ctx snorlax.Context) {
+func playHandler(ctx *snorlax.Context) {
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 	if len(parts) != 2 {
 		ctx.Log.Debugf("Wrong number of args: %#v", parts)
@@ -118,7 +118,7 @@ func playHandler(ctx snorlax.Context) {
 	conn.Close()
 }
 
-func stopHandler(ctx snorlax.Context) {
+func stopHandler(ctx *snorlax.Context) {
 	channel, err := ctx.State.Channel(ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Error("Error getting channel.")

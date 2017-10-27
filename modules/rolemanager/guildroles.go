@@ -32,7 +32,7 @@ func init() {
 	commands[deleteRole.Command] = deleteRole
 }
 
-func createRoleHandler(ctx snorlax.Context) {
+func createRoleHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")
@@ -86,7 +86,7 @@ func createRoleHandler(ctx snorlax.Context) {
 	}
 }
 
-func deleteRoleHandler(ctx snorlax.Context) {
+func deleteRoleHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Debug("Error getting user permissions.")

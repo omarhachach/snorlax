@@ -71,7 +71,7 @@ func statsReload(s *Snorlax) {
 	statsMessage = buf.String()
 }
 
-func statsHandler(ctx Context) {
+func statsHandler(ctx *Context) {
 	statsReload(ctx.Snorlax)
 	ctx.Session.ChannelMessageSend(ctx.ChannelID, statsMessage)
 }

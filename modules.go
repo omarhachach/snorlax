@@ -16,5 +16,5 @@ type Command struct {
 	Desc       string
 	Usage      string
 	ModuleName string
-	Handler    func(Context)
+	Handler    func(*Context)
 }
