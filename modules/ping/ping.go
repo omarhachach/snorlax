@@ -31,7 +31,7 @@ func ping(ctx *snorlax.Context) {
 	}
 
 	msg := "Pong " + time.Since(msgTime).Round(time.Millisecond).String() + "!"
-	ctx.SendMessage(msg, snorlax.InfoColor)
+	ctx.SendInfoMessage(msg)
 }
 
 // GetModule returns the Module
