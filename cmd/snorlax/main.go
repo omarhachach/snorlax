@@ -24,7 +24,6 @@ func main() {
 		DeleteMsg: *autoDelete,
 	})
 
-	bot.RegisterModule(ping.GetModule())
-	bot.RegisterModule(rolemanager.GetModule())
+	bot.RegisterModules(ping.GetModule(), rolemanager.GetModule())
 	bot.Start()
 }

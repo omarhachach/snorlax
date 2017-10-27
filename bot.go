@@ -92,6 +92,13 @@ func (s *Snorlax) RegisterModule(module *Module) {
 	s.Log.Info("Loaded module: " + module.Name)
 }
 
+// RegisterModules registers a list of modules.
+func (s *Snorlax) RegisterModules(modules ...*Module) {
+	for _, module := range modules {
+		s.RegisterModule(module)
+	}
+}
+
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
 	go func() {
