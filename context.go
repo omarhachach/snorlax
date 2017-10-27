@@ -1,6 +1,8 @@
 package snorlax
 
 import (
+	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
 )
@@ -29,10 +31,10 @@ func (ctx Context) SendEmbed(embed *discordgo.MessageEmbed) (*discordgo.Message,
 }
 
 // SendMessage sends an embed message with a message and color.
-func (ctx Context) SendMessage(msg string, color int) (*discordgo.Message, error) {
+func (ctx Context) SendMessage(color int, format string, a ...interface{}) (*discordgo.Message, error) {
 	messageEmbed := &discordgo.MessageEmbed{
 		Color:       color,
-		Description: msg,
+		Description: fmt.Sprintf(format, a),
 	}
 
 	return ctx.SendEmbed(messageEmbed)
@@ -40,22 +42,22 @@ func (ctx Context) SendMessage(msg string, color int) (*discordgo.Message, error
 
 // SendErrorMessage is a quick way to send an error.
 // -scrapped- It will suffix the message with a mention to the message creator.
-func (ctx Context) SendErrorMessage(msg string) (*discordgo.Message, error) {
+func (ctx Context) SendErrorMessage(format string, a ...interface{}) (*discordgo.Message, error) {
 	//if msg[len(msg)-1:] != " " {
 	//	msg += " "
 	//}
 	//msg += ctx.MessageCreate.Author.Mention()
 
-	return ctx.SendMessage(msg, ErrorColor)
+	return ctx.SendMessage(ErrorColor, format, a)
 }
 
 // SendSuccessMessage is a shortcut for sending a message with the success
 // colors.
-func (ctx Context) SendSuccessMessage(msg string) (*discordgo.Message, error) {
-	return ctx.SendMessage(msg, SuccessColor)
+func (ctx Context) SendSuccessMessage(format string, a ...interface{}) (*discordgo.Message, error) {
+	return ctx.SendMessage(SuccessColor, format, a)
 }
 
 // SendInfoMessage is a shortcut for sending a message with the info colors.
-func (ctx Context) SendInfoMessage(msg string) (*discordgo.Message, error) {
-	return ctx.SendMessage(msg, InfoColor)
+func (ctx Context) SendInfoMessage(format string, a ...interface{}) (*discordgo.Message, error) {
+	return ctx.SendMessage(InfoColor, format, a)
 }
