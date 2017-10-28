@@ -129,8 +129,13 @@ func (s *Snorlax) Start() {
 	signal.Notify(c, os.Interrupt, os.Kill)
 	<-c
 
+	s.Close()
+}
+
+// Close closes the Discord session, and exits the app.
+func (s *Snorlax) Close() {
 	s.Log.Info("Snorlax is now sleeping.")
-	err = s.Session.Close()
+	err := s.Session.Close()
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
 			"error": err,
