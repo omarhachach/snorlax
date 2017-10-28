@@ -20,27 +20,16 @@ type Snorlax struct {
 	Modules  map[string]*Module
 	Session  *discordgo.Session
 	Log      *logrus.Logger
-	token    string
+	Mutex    sync.Mutex
 	config   *Config
-	Owners   []string
-	sync.Mutex
-}
-
-// Config holds the options for the bot.
-type Config struct {
-	Debug bool
-	// DeleteMsg determines whether or not to automatically delete a command
-	// after it has been recieved.
-	DeleteMsg bool
 }
 
 // New returns a new bot type.
-func New(token string, config *Config) *Snorlax {
+func New(config *Config) *Snorlax {
 	s := &Snorlax{
 		Commands: map[string]*Command{},
 		Modules:  map[string]*Module{},
 		Log:      logrus.New(),
-		token:    token,
 		config:   config,
 	}
 
@@ -112,7 +101,7 @@ func (s *Snorlax) Start() {
 		s.Mutex.Unlock()
 	}()
 
-	discord, err := discordgo.New("Bot " + s.token)
+	discord, err := discordgo.New("Bot " + s.config.Token)
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
 			"error": err,
@@ -146,8 +135,9 @@ func (s *Snorlax) Start() {
 	}
 }
 
+// IsOwner returns whether or not a given ID is in the owners list.
 func (s *Snorlax) IsOwner(id string) bool {
-	for _, ownerid := range s.Owners {
+	for _, ownerid := range s.config.Owners {
 		if ownerid == id {
 			return true
 		}

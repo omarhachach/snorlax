@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/omar-h/snorlax"
 	"github.com/omar-h/snorlax/modules/eval"
 	"github.com/omar-h/snorlax/modules/music"
@@ -11,9 +13,7 @@ import (
 )
 
 var (
-	token      = flag.String("token", "", "Discord Bot Authentication Token")
-	debug      = flag.Bool("debug", false, "Debug Mode")
-	autoDelete = flag.Bool("delete", false, "Auto Delete Mode")
+	configPath = flag.String("config", "./config.json", "-config <file-path>")
 )
 
 func init() {
@@ -21,11 +21,20 @@ func init() {
 }
 
 func main() {
-	bot := snorlax.New(*token, &snorlax.Config{
-		Debug:     *debug,
-		DeleteMsg: *autoDelete,
-	})
+	config, err := snorlax.ParseConfig(*configPath)
+	if err != nil {
+		logrus.WithError(err).Error("Error parsing config.")
+		return
+	}
 
-	bot.RegisterModules(ping.GetModule(), rolemanager.GetModule(), music.GetModule(), eval.GetModule())
+	bot := snorlax.New(config)
+
+	bot.RegisterModules(
+		ping.GetModule(),
+		rolemanager.GetModule(),
+		music.GetModule(),
+		eval.GetModule(),
+	)
+
 	bot.Start()
 }

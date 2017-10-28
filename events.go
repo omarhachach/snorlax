@@ -17,7 +17,7 @@ func onMessageCreate(s *Snorlax) func(sess *discordgo.Session, m *discordgo.Mess
 
 		c, ok := s.Commands[msgCommand]
 		if ok {
-			if s.config.DeleteMsg {
+			if s.config.AutoDelete {
 				go func() {
 					err := s.Session.ChannelMessageDelete(m.ChannelID, m.ID)
 					if err != nil {
