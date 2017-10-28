@@ -1,10 +1,9 @@
 package snorlax
 
 import (
-	"bytes"
 	"fmt"
 	"runtime"
-	"text/tabwriter"
+	"strconv"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -19,7 +18,7 @@ func init() {
 		Name:     "Stats",
 		Desc:     "Stats module holds a single command; `.stats`.",
 		Commands: map[string]*Command{},
-		Init:     statsReload,
+		Init:     statsInit,
 	}
 
 	statsCommand := &Command{
@@ -46,33 +45,61 @@ func getDuration(duration time.Duration) string {
 	)
 }
 
-var statsMessage string
+var statsMessage *discordgo.MessageEmbed
+var staticFields = []*discordgo.MessageEmbedField{}
+
+func statsInit(s *Snorlax) {
+	fields := map[string]string{
+		"Snorlax":   Version,
+		"Go":        runtime.Version(),
+		"DiscordGo": discordgo.VERSION,
+		"Modules":   strconv.Itoa(len(s.Modules)),
+		"Commands":  strconv.Itoa(len(s.Commands)),
+	}
+
+	for key, val := range fields {
+		staticFields = append(staticFields, &discordgo.MessageEmbedField{
+			Name:   key,
+			Value:  val,
+			Inline: true,
+		})
+	}
+
+	statsMessage = &discordgo.MessageEmbed{
+		Color: InfoColor,
+		Author: &discordgo.MessageEmbedAuthor{
+			URL:     "https://www.snorlaxbot.com/",
+			Name:    "Snorlax Bot v" + Version,
+			IconURL: "https://i.imgur.com/Hcoovug.png",
+		},
+		Fields: staticFields,
+	}
+
+	statsReload(s)
+}
 
 func statsReload(s *Snorlax) {
 	stats := runtime.MemStats{}
 	runtime.ReadMemStats(&stats)
 
-	w := &tabwriter.Writer{}
-	buf := &bytes.Buffer{}
+	fields := map[string]string{
+		"Uptime":      getDuration(time.Since(startTime)),
+		"Memory Used": fmt.Sprintf("%s / %s", humanize.Bytes(stats.Alloc), humanize.Bytes(stats.Sys)),
+		"Goroutines":  strconv.Itoa(runtime.NumGoroutine()),
+		"Servers":     strconv.Itoa(len(s.Session.State.Guilds)),
+	}
 
-	w.Init(buf, 0, 4, 0, ' ', 0)
-	fmt.Fprint(w, "```\n")
-	fmt.Fprintf(w, "Snorlax: \t%s\n", Version)
-	fmt.Fprintf(w, "Go: \t%s\n", runtime.Version())
-	fmt.Fprintf(w, "Uptime: \t%s\n", getDuration(time.Since(startTime)))
-	fmt.Fprintf(w, "DiscordGo: \t%s\n", discordgo.VERSION)
-	fmt.Fprintf(w, "Memory Used: \t%s / %s (%s garbage collected)\n", humanize.Bytes(stats.Alloc), humanize.Bytes(stats.Sys), humanize.Bytes(stats.TotalAlloc))
-	fmt.Fprintf(w, "Concurrent tasks: \t%d\n", runtime.NumGoroutine())
-	fmt.Fprintf(w, "Servers: \t%d\n", len(s.Session.State.Guilds))
-	fmt.Fprintf(w, "Modules: \t%d\n", len(s.Modules))
-	fmt.Fprintf(w, "Commands: \t%d\n", len(s.Commands))
-	fmt.Fprint(w, "```\n")
-
-	w.Flush()
-	statsMessage = buf.String()
+	statsMessage.Fields = staticFields
+	for key, val := range fields {
+		statsMessage.Fields = append(statsMessage.Fields, &discordgo.MessageEmbedField{
+			Name:   key,
+			Value:  val,
+			Inline: true,
+		})
+	}
 }
 
 func statsHandler(ctx *Context) {
 	statsReload(ctx.Snorlax)
-	ctx.Session.ChannelMessageSend(ctx.ChannelID, statsMessage)
+	ctx.SendEmbed(statsMessage)
 }
