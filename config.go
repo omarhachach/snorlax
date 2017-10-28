@@ -9,11 +9,12 @@ import (
 type Config struct {
 	// AutoDelete determines whether or not to automatically delete command
 	// messages.
-	AutoDelete bool     `json:"autoDelete"`
-	DBPath     string   `json:"dbPath"`
-	Debug      bool     `json:"debug"`
-	Token      string   `json:"token"`
-	Owners     []string `json:"owners"`
+	AutoDelete    bool     `json:"autoDelete"`
+	DBPath        string   `json:"dbPath"`
+	Debug         bool     `json:"debug"`
+	DisplayAuthor bool     `json:"displayAuthor"`
+	Token         string   `json:"token"`
+	Owners        []string `json:"owners"`
 }
 
 // ParseConfig parses a config file, and returns a new Config.

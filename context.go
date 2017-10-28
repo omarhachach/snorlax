@@ -27,14 +27,27 @@ const (
 
 // SendEmbed sends a custom embed message.
 func (ctx Context) SendEmbed(embed *discordgo.MessageEmbed) (*discordgo.Message, error) {
+	if ctx.Snorlax.config.DisplayAuthor && embed.Author == nil {
+		embed.Author = &discordgo.MessageEmbedAuthor{
+			URL:     "https://www.snorlaxbot.com/",
+			Name:    "Snorlax v" + Version,
+			IconURL: "https://i.imgur.com/Hcoovug.png",
+		}
+	}
+
 	return ctx.Session.ChannelMessageSendEmbed(ctx.ChannelID, embed)
 }
 
 // SendMessage sends an embed message with a message and color.
-func (ctx Context) SendMessage(color int, format string, a ...interface{}) (*discordgo.Message, error) {
+func (ctx Context) SendMessage(color int, title, format string, a ...interface{}) (*discordgo.Message, error) {
 	messageEmbed := &discordgo.MessageEmbed{
-		Color:       color,
-		Description: fmt.Sprintf(format, a...),
+		Color: color,
+		Fields: []*discordgo.MessageEmbedField{
+			&discordgo.MessageEmbedField{
+				Name:  title,
+				Value: fmt.Sprintf(format, a...),
+			},
+		},
 	}
 
 	return ctx.SendEmbed(messageEmbed)
@@ -48,16 +61,16 @@ func (ctx Context) SendErrorMessage(format string, a ...interface{}) (*discordgo
 	//}
 	//msg += ctx.MessageCreate.Author.Mention()
 
-	return ctx.SendMessage(ErrorColor, format, a...)
+	return ctx.SendMessage(ErrorColor, "Error", format, a...)
 }
 
 // SendSuccessMessage is a shortcut for sending a message with the success
 // colors.
 func (ctx Context) SendSuccessMessage(format string, a ...interface{}) (*discordgo.Message, error) {
-	return ctx.SendMessage(SuccessColor, format, a...)
+	return ctx.SendMessage(SuccessColor, "Success", format, a...)
 }
 
 // SendInfoMessage is a shortcut for sending a message with the info colors.
 func (ctx Context) SendInfoMessage(format string, a ...interface{}) (*discordgo.Message, error) {
-	return ctx.SendMessage(InfoColor, format, a...)
+	return ctx.SendMessage(InfoColor, "Info", format, a...)
 }

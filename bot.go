@@ -129,19 +129,6 @@ func (s *Snorlax) Start() {
 		return
 	}
 
-	_, err = models.CreateCurrency(s.DB, 10, "140254342170148864")
-	if err != nil {
-		s.Log.WithError(err).Error("Error creating currency.")
-		return
-	}
-
-	currency, err := models.GetCurrency(s.DB, "140254342170148864")
-	if err != nil {
-		s.Log.WithError(err).Error("Error getting currency.")
-		return
-	}
-	s.Log.Debugf("%#v", currency)
-
 	s.Log.Info("Snorlax has been woken!")
 
 	c := make(chan os.Signal, 1)

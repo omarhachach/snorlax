@@ -39,7 +39,6 @@ func jsEvalHandler(ctx *snorlax.Context) {
 
 	ctx.SendEmbed(&discordgo.MessageEmbed{
 		Color:       snorlax.SuccessColor,
-		Title:       "Result",
 		Description: fmt.Sprintf("```JS\n%s\n```", val),
 	})
 }

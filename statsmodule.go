@@ -66,12 +66,7 @@ func statsInit(s *Snorlax) {
 	}
 
 	statsMessage = &discordgo.MessageEmbed{
-		Color: InfoColor,
-		Author: &discordgo.MessageEmbedAuthor{
-			URL:     "https://www.snorlaxbot.com/",
-			Name:    "Snorlax Bot v" + Version,
-			IconURL: "https://i.imgur.com/Hcoovug.png",
-		},
+		Color:  InfoColor,
 		Fields: staticFields,
 	}
 
