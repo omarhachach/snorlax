@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"github.com/omar-h/snorlax"
+	"github.com/omar-h/snorlax/modules/eval"
 	"github.com/omar-h/snorlax/modules/music"
 	"github.com/omar-h/snorlax/modules/ping"
 	"github.com/omar-h/snorlax/modules/rolemanager"
@@ -25,6 +26,6 @@ func main() {
 		DeleteMsg: *autoDelete,
 	})
 
-	bot.RegisterModules(ping.GetModule(), rolemanager.GetModule(), music.GetModule())
+	bot.RegisterModules(ping.GetModule(), rolemanager.GetModule(), music.GetModule(), eval.GetModule())
 	bot.Start()
 }

@@ -22,6 +22,7 @@ type Snorlax struct {
 	Log      *logrus.Logger
 	token    string
 	config   *Config
+	Owners   []string
 	sync.Mutex
 }
 
@@ -143,4 +144,14 @@ func (s *Snorlax) Start() {
 			"error": err,
 		}).Fatal("Error closing Discord session.")
 	}
+}
+
+func (s *Snorlax) IsOwner(id string) bool {
+	for _, ownerid := range s.Owners {
+		if ownerid == id {
+			return true
+		}
+	}
+
+	return false
 }
