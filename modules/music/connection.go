@@ -60,7 +60,7 @@ func (c *Connection) AddYouTubeVideo(url string) error {
 		return err
 	}
 
-	format := vid.Formats.Best(ytdl.FormatAudioBitrateKey)[0]
+	format := vid.Formats.Best(ytdl.FormatAudioEncodingKey)[0]
 	downloadURL, err := vid.GetDownloadURL(format)
 	if err != nil {
 		return err

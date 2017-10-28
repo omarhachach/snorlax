@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/omar-h/snorlax/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -117,13 +118,29 @@ func (s *Snorlax) Start() {
 
 	err = s.Session.Open()
 	if err != nil {
-		s.Log.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Error establishing connection to Discord.")
+		s.Log.WithError(err).Fatal("Error establishing connection to Discord.")
 		return
 	}
 
 	s.ConnDB()
+	err = models.Init(s.DB)
+	if err != nil {
+		s.Log.WithError(err).Fatal("Error initializing database tables.")
+		return
+	}
+
+	_, err = models.CreateCurrency(s.DB, 10, "140254342170148864")
+	if err != nil {
+		s.Log.WithError(err).Error("Error creating currency.")
+		return
+	}
+
+	currency, err := models.GetCurrency(s.DB, "140254342170148864")
+	if err != nil {
+		s.Log.WithError(err).Error("Error getting currency.")
+		return
+	}
+	s.Log.Debugf("%#v", currency)
 
 	s.Log.Info("Snorlax has been woken!")
 
@@ -136,6 +153,8 @@ func (s *Snorlax) Start() {
 
 // Close closes the Discord session, and exits the app.
 func (s *Snorlax) Close() {
+	s.Log.Info("Snorlax is going to sleep.")
+
 	err := s.Session.Close()
 	if err != nil {
 		s.Log.WithError(err).Error("Error closing Discord session.")
