@@ -57,6 +57,7 @@ func statsReload(s *Snorlax) {
 
 	w.Init(buf, 0, 4, 0, ' ', 0)
 	fmt.Fprint(w, "```\n")
+	fmt.Fprintf(w, "Snorlax: \t%s\n", Version)
 	fmt.Fprintf(w, "Go: \t%s\n", runtime.Version())
 	fmt.Fprintf(w, "Uptime: \t%s\n", getDuration(time.Since(startTime)))
 	fmt.Fprintf(w, "DiscordGo: \t%s\n", discordgo.VERSION)
