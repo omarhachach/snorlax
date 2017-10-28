@@ -1,6 +1,7 @@
 package snorlax
 
 import (
+	"database/sql"
 	"os"
 	"os/signal"
 	"sync"
@@ -21,6 +22,7 @@ type Snorlax struct {
 	Session  *discordgo.Session
 	Log      *logrus.Logger
 	Mutex    *sync.Mutex
+	DB       *sql.DB
 	config   *Config
 }
 

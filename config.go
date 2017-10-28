@@ -10,6 +10,7 @@ type Config struct {
 	// AutoDelete determines whether or not to automatically delete command
 	// messages.
 	AutoDelete bool     `json:"autoDelete"`
+	DBPath     string   `json:"dbPath"`
 	Debug      bool     `json:"debug"`
 	Token      string   `json:"token"`
 	Owners     []string `json:"owners"`
