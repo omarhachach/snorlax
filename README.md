@@ -1,6 +1,8 @@
 # Snorlax
 Snorlax is another modular Discord bot, with loads of built in modules.
 
+**This is still in early development, therefore it is subject to frequent breaking changes and rewrites.**
+
 ## Menu
 * [Modules](#modules)
 * [Getting Started](#getting-started)
@@ -12,19 +14,22 @@ Snorlax is another modular Discord bot, with loads of built in modules.
 ## Modules
 * Role Manager
 * Ping
+* Gambling
+* Eval
+* Music
 * More to come!
 
 ## Getting Started
-To get the public bot, you can just click [here]().
+To get the public bot, you can just click [here]() (not public yet).
 
-To run it yourself, grab one of the [releases](https://github.com/omar-h/snorlax/releases).<br>
+To run it yourself, grab one of the [releases](https://github.com/omar-h/snorlax/releases). (Still in early development, see [running from source](#running-from-source)).<br>
 Once downloaded go to the location of the downloaded binary, and run it like so:
 ```Bash
 $ ./snorlax -token=<your-bot-token>
 ```
 
 ## Commands
-Visit [the website](https://www.snorlaxbot.com/commands) for a full list of commands.
+Visit [the website](https://www.snorlaxbot.com/commands) (not finished, see help command) for a full list of commands.
 
 ## Running From Source
 To run the bot from source, you need to have Go installed.<br>
