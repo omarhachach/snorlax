@@ -20,7 +20,7 @@ type Snorlax struct {
 	Modules  map[string]*Module
 	Session  *discordgo.Session
 	Log      *logrus.Logger
-	Mutex    sync.Mutex
+	Mutex    *sync.Mutex
 	config   *Config
 }
 
@@ -30,6 +30,7 @@ func New(config *Config) *Snorlax {
 		Commands: map[string]*Command{},
 		Modules:  map[string]*Module{},
 		Log:      logrus.New(),
+		Mutex:    &sync.Mutex{},
 		config:   config,
 	}
 
