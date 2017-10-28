@@ -123,6 +123,8 @@ func (s *Snorlax) Start() {
 		return
 	}
 
+	s.ConnDB()
+
 	s.Log.Info("Snorlax has been woken!")
 
 	c := make(chan os.Signal, 1)
@@ -134,13 +136,19 @@ func (s *Snorlax) Start() {
 
 // Close closes the Discord session, and exits the app.
 func (s *Snorlax) Close() {
-	s.Log.Info("Snorlax is now sleeping.")
 	err := s.Session.Close()
 	if err != nil {
-		s.Log.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Error closing Discord session.")
+		s.Log.WithError(err).Error("Error closing Discord session.")
+		return
 	}
+
+	err = s.DB.Close()
+	if err != nil {
+		s.Log.WithError(err).Error("Error closing Database connection.")
+		return
+	}
+
+	s.Log.Info("Snorlax is now sleeping.")
 }
 
 // IsOwner returns whether or not a given ID is in the owners list.
