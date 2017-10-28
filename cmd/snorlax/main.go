@@ -3,13 +3,12 @@ package main
 import (
 	"flag"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/omar-h/snorlax"
 	"github.com/omar-h/snorlax/modules/eval"
 	"github.com/omar-h/snorlax/modules/music"
 	"github.com/omar-h/snorlax/modules/ping"
 	"github.com/omar-h/snorlax/modules/rolemanager"
+	"github.com/sirupsen/logrus"
 )
 
 var (
