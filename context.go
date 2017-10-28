@@ -34,7 +34,7 @@ func (ctx Context) SendEmbed(embed *discordgo.MessageEmbed) (*discordgo.Message,
 func (ctx Context) SendMessage(color int, format string, a ...interface{}) (*discordgo.Message, error) {
 	messageEmbed := &discordgo.MessageEmbed{
 		Color:       color,
-		Description: fmt.Sprintf(format, a),
+		Description: fmt.Sprintf(format, a...),
 	}
 
 	return ctx.SendEmbed(messageEmbed)
@@ -48,16 +48,16 @@ func (ctx Context) SendErrorMessage(format string, a ...interface{}) (*discordgo
 	//}
 	//msg += ctx.MessageCreate.Author.Mention()
 
-	return ctx.SendMessage(ErrorColor, format, a)
+	return ctx.SendMessage(ErrorColor, format, a...)
 }
 
 // SendSuccessMessage is a shortcut for sending a message with the success
 // colors.
 func (ctx Context) SendSuccessMessage(format string, a ...interface{}) (*discordgo.Message, error) {
-	return ctx.SendMessage(SuccessColor, format, a)
+	return ctx.SendMessage(SuccessColor, format, a...)
 }
 
 // SendInfoMessage is a shortcut for sending a message with the info colors.
 func (ctx Context) SendInfoMessage(format string, a ...interface{}) (*discordgo.Message, error) {
-	return ctx.SendMessage(InfoColor, format, a)
+	return ctx.SendMessage(InfoColor, format, a...)
 }
