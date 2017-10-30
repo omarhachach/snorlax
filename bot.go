@@ -2,8 +2,6 @@ package snorlax
 
 import (
 	"database/sql"
-	"os"
-	"os/signal"
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
@@ -130,12 +128,6 @@ func (s *Snorlax) Start() {
 	}
 
 	s.Log.Info("Snorlax has been woken!")
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
-	<-c
-
-	s.Close()
 }
 
 // Close closes the Discord session, and exits the app.
