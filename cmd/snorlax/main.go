@@ -4,7 +4,6 @@ import (
 	"flag"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/omar-h/snorlax"
 	"github.com/omar-h/snorlax/modules/eval"
@@ -23,7 +22,6 @@ func init() {
 }
 
 func main() {
-	now := time.Now()
 	config, err := snorlax.ParseConfig(*configPath)
 	if err != nil {
 		logrus.WithError(err).Error("Error parsing config.")
