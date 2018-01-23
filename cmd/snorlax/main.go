@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/omar-h/snorlax"
+	"github.com/omar-h/snorlax/modules/administration"
 	"github.com/omar-h/snorlax/modules/eval"
 	"github.com/omar-h/snorlax/modules/music"
 	"github.com/omar-h/snorlax/modules/ping"
@@ -35,6 +36,7 @@ func main() {
 		rolemanager.GetModule(),
 		music.GetModule(),
 		eval.GetModule(),
+		administration.GetModule(),
 	)
 
 	bot.Start()
