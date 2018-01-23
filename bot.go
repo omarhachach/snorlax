@@ -11,7 +11,7 @@ import (
 
 var internalModules = map[string]*Module{}
 
-// Version is the Go version.
+// Version is the bot version.
 const Version = "0.1.0"
 
 // Snorlax is the bot type.
@@ -22,7 +22,7 @@ type Snorlax struct {
 	Log      *logrus.Logger
 	Mutex    *sync.Mutex
 	DB       *sql.DB
-	config   *Config
+	Config   *Config
 }
 
 // New returns a new bot type.
@@ -32,10 +32,10 @@ func New(config *Config) *Snorlax {
 		Modules:  map[string]*Module{},
 		Log:      logrus.New(),
 		Mutex:    &sync.Mutex{},
-		config:   config,
+		Config:   config,
 	}
 
-	if s.config.Debug {
+	if s.Config.Debug {
 		s.Log.SetLevel(logrus.DebugLevel)
 	}
 
@@ -103,7 +103,7 @@ func (s *Snorlax) Start() {
 		s.Mutex.Unlock()
 	}()
 
-	discord, err := discordgo.New("Bot " + s.config.Token)
+	discord, err := discordgo.New("Bot " + s.Config.Token)
 	if err != nil {
 		s.Log.WithFields(logrus.Fields{
 			"error": err,
@@ -151,7 +151,7 @@ func (s *Snorlax) Close() {
 
 // IsOwner returns whether or not a given ID is in the owners list.
 func (s *Snorlax) IsOwner(id string) bool {
-	for _, ownerid := range s.config.Owners {
+	for _, ownerid := range s.Config.Owners {
 		if ownerid == id {
 			return true
 		}

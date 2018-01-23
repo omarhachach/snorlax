@@ -17,7 +17,8 @@ func onMessageCreate(s *Snorlax) func(sess *discordgo.Session, m *discordgo.Mess
 
 		c, ok := s.Commands[msgCommand]
 		if ok {
-			if s.config.AutoDelete {
+			s.Mutex.Lock()
+			if s.Config.AutoDelete {
 				go func() {
 					err := s.Session.ChannelMessageDelete(m.ChannelID, m.ID)
 					if err != nil {
@@ -25,6 +26,7 @@ func onMessageCreate(s *Snorlax) func(sess *discordgo.Session, m *discordgo.Mess
 					}
 				}()
 			}
+			s.Mutex.Unlock()
 
 			go c.Handler(&Context{
 				Log:       s.Log,

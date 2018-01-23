@@ -27,7 +27,7 @@ const (
 
 // SendEmbed sends a custom embed message.
 func (ctx Context) SendEmbed(embed *discordgo.MessageEmbed) (*discordgo.Message, error) {
-	if ctx.Snorlax.config.DisplayAuthor && embed.Author == nil {
+	if ctx.Snorlax.Config.DisplayAuthor && embed.Author == nil {
 		embed.Author = &discordgo.MessageEmbedAuthor{
 			URL:     "https://www.snorlaxbot.com/",
 			Name:    "Snorlax v" + Version,

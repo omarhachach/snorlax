@@ -9,7 +9,7 @@ import (
 
 // ConnDB intializes the connection to the SQLite database.
 func (s *Snorlax) ConnDB() {
-	db, err := sql.Open("sqlite3", s.config.DBPath)
+	db, err := sql.Open("sqlite3", s.Config.DBPath)
 	if err != nil {
 		s.Log.WithError(err).Error("Error opening connection to database.")
 		return
