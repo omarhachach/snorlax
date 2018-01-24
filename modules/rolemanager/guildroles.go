@@ -106,7 +106,7 @@ func deleteRoleHandler(ctx *snorlax.Context) {
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
 		parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
-		if len(parts) != 4 {
+		if len(parts) != 2 {
 			ctx.Log.Debugf("Wrong number of args: %#v", parts)
 			return
 		}
