@@ -10,6 +10,7 @@ func init() {
 		Command:    ".clearstate",
 		Alias:      ".clearcache",
 		Usage:      ".clearstate",
+		Desc:       "Will clear the discordgo state cache.",
 		ModuleName: moduleName,
 		Handler:    clearStateHandler,
 	}
