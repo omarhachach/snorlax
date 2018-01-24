@@ -23,6 +23,7 @@ func init() {
 
 	statsCommand := &Command{
 		Command:    ".stats",
+		Alias:      ".info",
 		Desc:       "Stats shows you statistics of the bot and runtime.",
 		Usage:      ".stats",
 		ModuleName: statsModule.Name,

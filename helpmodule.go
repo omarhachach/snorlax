@@ -26,7 +26,16 @@ func init() {
 		Handler:    helpHandler,
 	}
 
+	aboutCommand := &Command{
+		Command:    ".about",
+		Desc:       "Will tell you about the bot project.",
+		Usage:      ".about",
+		ModuleName: helpModule.Name,
+		Handler:    aboutHandler,
+	}
+
 	helpModule.Commands[helpCommand.Command] = helpCommand
+	helpModule.Commands[aboutCommand.Command] = aboutCommand
 
 	internalModules[helpModule.Name] = helpModule
 }
@@ -105,7 +114,7 @@ func helpHandler(ctx *Context) {
 	case 1:
 		footText = !footText
 		if footText {
-			helpModules.Footer.Text = "Use `.help [module] [page]` to show a list of command for a module."
+			helpModules.Footer.Text = "TIP: Use `.help [module] [page]` to show a list of command for a module."
 		} else {
 			helpModules.Footer.Text = "TIP: Surround the module's name with \"quotes\" if it spans multiple spaces."
 		}
@@ -165,4 +174,21 @@ func helpHandler(ctx *Context) {
 		ctx.Log.Debugf("Wrong number of args: %#v", parts)
 		return
 	}
+}
+
+var aboutEmbed = &discordgo.MessageEmbed{
+	Color: InfoColor,
+	Fields: []*discordgo.MessageEmbedField{
+		&discordgo.MessageEmbedField{
+			Name: "About",
+			Value: "Hi, I'm Snorlax, a general purpose bot written in Go.\n\n" +
+				"I am developed by Omar H., and I am open-source!\n" +
+				"Support my development by contributing: https://github.com/omar-h/snorlax\n\n" +
+				"Thank you very much :D",
+		},
+	},
+}
+
+func aboutHandler(ctx *Context) {
+	ctx.SendEmbed(aboutEmbed)
 }
