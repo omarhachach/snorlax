@@ -32,6 +32,10 @@ func GetStringFromQuotes(parts []string) []string {
 	val := ""
 	for k := 0; k < length; k++ {
 		val = parts[k]
+		if len(val) == 0 {
+			continue
+		}
+
 		switch {
 		// If a startQuote hasn't been found, and the first byte is a quote,
 		// then set the startQuote, and start the string.
