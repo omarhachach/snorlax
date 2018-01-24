@@ -33,10 +33,13 @@ func init() {
 }
 
 func roleHoistHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
@@ -46,10 +49,14 @@ func roleHoistHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		roles, err := ctx.Session.GuildRoles(channel.GuildID)
@@ -79,21 +86,25 @@ func roleHoistHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		_, err = ctx.Session.GuildRoleEdit(channel.GuildID, role.ID, role.Name, role.Color, hoist, role.Permissions, role.Mentionable)
+		role, err = ctx.Session.GuildRoleEdit(channel.GuildID, role.ID, role.Name, role.Color, hoist, role.Permissions, role.Mentionable)
 		if err != nil {
 			ctx.Log.WithError(err).Debug("Error editing guild role.")
 			return
 		}
 
 		ctx.SendSuccessMessage("Hoist value for " + parts[1] + " set to " + strconv.FormatBool(hoist) + ".")
+		ctx.State.RoleAdd(channel.GuildID, role)
 	}
 }
 
 func roleColorHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
@@ -103,10 +114,14 @@ func roleColorHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		roles, err := ctx.Session.GuildRoles(channel.GuildID)
@@ -140,12 +155,13 @@ func roleColorHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		_, err = ctx.Session.GuildRoleEdit(channel.GuildID, role.ID, role.Name, int(color), role.Hoist, role.Permissions, role.Mentionable)
+		role, err = ctx.Session.GuildRoleEdit(channel.GuildID, role.ID, role.Name, int(color), role.Hoist, role.Permissions, role.Mentionable)
 		if err != nil {
 			ctx.Log.WithError(err).Debug("Error editing guild role.")
 			return
 		}
 
 		ctx.SendSuccessMessage("msgRoleName" + "'s colour set to " + parts[2] + ".")
+		ctx.State.RoleAdd(channel.GuildID, role)
 	}
 }

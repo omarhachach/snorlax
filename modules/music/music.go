@@ -115,8 +115,12 @@ func playSong(ctx *snorlax.Context, guildID, musicChannelID, song string) {
 func stopHandler(ctx *snorlax.Context) {
 	channel, err := ctx.State.Channel(ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Error("Error getting channel.")
-		return
+		channel, err = ctx.Session.Channel(ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting channel.")
+			return
+		}
+		ctx.State.ChannelAdd(channel)
 	}
 
 	conn, ok := musicConnections[channel.GuildID]
@@ -138,14 +142,22 @@ func playHandler(ctx *snorlax.Context) {
 
 	channel, err := ctx.State.Channel(ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Error("Error getting channel.")
-		return
+		channel, err = ctx.Session.Channel(ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting channel.")
+			return
+		}
+		ctx.State.ChannelAdd(channel)
 	}
 
 	guild, err := ctx.State.Guild(channel.GuildID)
 	if err != nil {
-		ctx.Log.WithError(err).Error("Error getting guild.")
-		return
+		guild, err = ctx.Session.Guild(channel.GuildID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting guild.")
+			return
+		}
+		ctx.State.GuildAdd(guild)
 	}
 
 	musicChannelID := ""
@@ -174,8 +186,12 @@ func playHandler(ctx *snorlax.Context) {
 func queueHandler(ctx *snorlax.Context) {
 	channel, err := ctx.State.Channel(ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Error("Error getting channel")
-		return
+		channel, err = ctx.Session.Channel(ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting channel.")
+			return
+		}
+		ctx.State.ChannelAdd(channel)
 	}
 
 	conn, ok := musicConnections[channel.GuildID]

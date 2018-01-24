@@ -42,10 +42,13 @@ func init() {
 }
 
 func setRoleHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithField("error", err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
@@ -64,10 +67,14 @@ func setRoleHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting guild channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		roles, err := ctx.Session.GuildRoles(channel.GuildID)
@@ -104,10 +111,13 @@ func setRoleHandler(ctx *snorlax.Context) {
 }
 
 func removeRoleHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	// Check whether a user has the Manage Roles permission.
@@ -128,10 +138,14 @@ func removeRoleHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting guild channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		roles, err := ctx.Session.GuildRoles(channel.GuildID)
@@ -168,10 +182,13 @@ func removeRoleHandler(ctx *snorlax.Context) {
 }
 
 func removeAllRolesHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	// Check whether a user has the Manage Roles permission.
@@ -184,18 +201,26 @@ func removeAllRolesHandler(ctx *snorlax.Context) {
 		}
 
 		// Get channel of the message (for getting GuildID)
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting guild channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting guild channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		userID := utils.ExtractUserIDFromMention(parts[1])
 		// Get Guild Member for getting roles.
-		member, err := ctx.Session.GuildMember(channel.GuildID, userID)
+		member, err := ctx.State.Member(channel.GuildID, userID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting guild member.")
-			return
+			member, err = ctx.Session.GuildMember(channel.GuildID, userID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting guild member.")
+				return
+			}
+			ctx.State.MemberAdd(member)
 		}
 
 		// Check if the user has any roles.

@@ -137,10 +137,13 @@ func banHandler(ctx *snorlax.Context) {
 // }
 
 func unbanHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionBanMembers != 0 {
@@ -156,10 +159,14 @@ func unbanHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		bans, err := ctx.Session.GuildBans(channel.GuildID)
@@ -191,10 +198,13 @@ func unbanHandler(ctx *snorlax.Context) {
 }
 
 func kickHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionBanMembers != 0 {
@@ -210,10 +220,14 @@ func kickHandler(ctx *snorlax.Context) {
 			reason = parts[2]
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		err = ctx.Session.GuildMemberDeleteWithReason(channel.GuildID, utils.ExtractUserIDFromMention(parts[1]), reason)

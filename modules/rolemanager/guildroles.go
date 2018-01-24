@@ -33,10 +33,13 @@ func init() {
 }
 
 func createRoleHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
@@ -46,10 +49,14 @@ func createRoleHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		role, err := ctx.Session.GuildRoleCreate(channel.GuildID)
@@ -83,14 +90,18 @@ func createRoleHandler(ctx *snorlax.Context) {
 		}
 
 		ctx.SendSuccessMessage("Created role " + parts[1] + "!")
+		ctx.State.RoleAdd(channel.GuildID, role)
 	}
 }
 
 func deleteRoleHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionManageRoles != 0 {
@@ -100,10 +111,14 @@ func deleteRoleHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		channel, err := ctx.Session.Channel(ctx.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			ctx.Log.WithError(err).Debug("Error getting channel.")
-			return
+			channel, err = ctx.Session.Channel(ctx.ChannelID)
+			if err != nil {
+				ctx.Log.WithError(err).Debug("Error getting channel.")
+				return
+			}
+			ctx.State.ChannelAdd(channel)
 		}
 
 		roles, err := ctx.Session.GuildRoles(channel.GuildID)
@@ -133,5 +148,6 @@ func deleteRoleHandler(ctx *snorlax.Context) {
 		}
 
 		ctx.SendSuccessMessage("Role " + parts[1] + " has been deleted.")
+		ctx.State.RoleRemove(channel.GuildID, roleID)
 	}
 }
