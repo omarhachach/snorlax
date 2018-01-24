@@ -21,7 +21,7 @@ func init() {
 }
 
 // vm is the JS interpreter.
-var vm = otto.New()
+var jsVM = otto.New()
 
 func jsEvalHandler(ctx *snorlax.Context) {
 	if !ctx.Snorlax.IsOwner(ctx.Message.Author.ID) {
@@ -31,7 +31,7 @@ func jsEvalHandler(ctx *snorlax.Context) {
 
 	codeSnip := getCodeSnip(ctx.Message.Content)
 
-	val, err := vm.Run(codeSnip)
+	val, err := jsVM.Run(codeSnip)
 	if err != nil {
 		ctx.SendErrorMessage("```JS\n%s\n```", err.Error())
 		return

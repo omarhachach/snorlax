@@ -4,12 +4,35 @@ import (
 	"strings"
 
 	"github.com/omar-h/snorlax"
+	"github.com/robertkrimen/otto"
 )
 
 var (
 	commands   = map[string]*snorlax.Command{}
 	moduleName = "Eval"
 )
+
+func init() {
+	vmFlushCommand := &snorlax.Command{
+		Command:    ".vmflush",
+		Alias:      ".vmclear",
+		Desc:       "Will recreate the eval VMs.",
+		Usage:      ".vmflush",
+		ModuleName: moduleName,
+		Handler:    vmFlushHandler,
+	}
+
+	commands[vmFlushCommand.Command] = vmFlushCommand
+}
+
+func vmFlushHandler(ctx *snorlax.Context) {
+	if !ctx.Snorlax.IsOwner(ctx.Message.Author.ID) {
+		ctx.SendErrorMessage("You have to be a bot owner to run this command.")
+		return
+	}
+
+	jsVM = otto.New()
+}
 
 // getCodeSnip takes in the message content, and returns a single string of the
 // code.
