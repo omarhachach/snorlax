@@ -8,6 +8,7 @@ import (
 	"github.com/omar-h/snorlax"
 	"github.com/omar-h/snorlax/modules/administration"
 	"github.com/omar-h/snorlax/modules/eval"
+	"github.com/omar-h/snorlax/modules/moderation"
 	"github.com/omar-h/snorlax/modules/music"
 	"github.com/omar-h/snorlax/modules/ping"
 	"github.com/omar-h/snorlax/modules/rolemanager"
@@ -32,11 +33,12 @@ func main() {
 	bot := snorlax.New(config)
 
 	bot.RegisterModules(
+		administration.GetModule(),
+		eval.GetModule(),
+		moderation.GetModule(),
+		music.GetModule(),
 		ping.GetModule(),
 		rolemanager.GetModule(),
-		music.GetModule(),
-		eval.GetModule(),
-		administration.GetModule(),
 	)
 
 	bot.Start()
