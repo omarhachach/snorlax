@@ -93,6 +93,15 @@ func (s *Snorlax) RegisterModules(modules ...*Module) {
 
 // Start opens a connection to Discord, and initiliazes the bot.
 func (s *Snorlax) Start() {
+	discord, err := discordgo.New("Bot " + s.Config.Token)
+	if err != nil {
+		s.Log.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatal("Failed to create the Discord session")
+		return
+	}
+	s.Session = discord
+
 	go func() {
 		s.Mutex.Lock()
 		for _, module := range s.Modules {
@@ -102,15 +111,6 @@ func (s *Snorlax) Start() {
 		}
 		s.Mutex.Unlock()
 	}()
-
-	discord, err := discordgo.New("Bot " + s.Config.Token)
-	if err != nil {
-		s.Log.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Failed to create the Discord session")
-		return
-	}
-	s.Session = discord
 
 	s.Session.AddHandler(onMessageCreate(s))
 
