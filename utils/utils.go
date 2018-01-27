@@ -4,14 +4,14 @@ import (
 	"errors"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 // ExtractUserIDFromMention takes in a mention (<@ID>) and spits out only the ID.
 func ExtractUserIDFromMention(mention string) string {
-	mention = strings.Replace(mention, "<", "", 1)
-	mention = strings.Replace(mention, ">", "", 1)
-	mention = strings.Replace(mention, "@", "", 1)
+	if mention[:2] == "<@" && mention[len(mention)-1:] == ">" {
+		return mention[2:][:len(mention)-3] // -3 because we remove 2 chars.
+	}
+
 	return mention
 }
 
