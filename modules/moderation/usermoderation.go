@@ -49,20 +49,27 @@ func init() {
 }
 
 func banUser(ctx *snorlax.Context, userID, reason string, time int) (bool, error) {
-	channel, err := ctx.Session.Channel(ctx.ChannelID)
+	channel, err := ctx.State.Channel(ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting channel.")
-		return false, nil // Don't want to return error, as error is handled.
+		channel, err = ctx.Session.Channel(ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting channel.")
+			return false, nil // Don't want to return error, as error is handled.
+		}
+		ctx.State.ChannelAdd(channel)
 	}
 
 	return true, ctx.Session.GuildBanCreateWithReason(channel.GuildID, userID, reason, time)
 }
 
 func banHandler(ctx *snorlax.Context) {
-	permissions, err := ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
-		return
+		permissions, err = ctx.Session.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Debug("Error getting user permissions.")
+			return
+		}
 	}
 
 	if permissions&discordgo.PermissionBanMembers != 0 {
