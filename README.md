@@ -1,5 +1,9 @@
 # Snorlax
-Snorlax is another modular Discord bot, with loads of built in modules.
+[![Report Card](https://img.shields.io/badge/report%20card-a%2B-c0392b.svg?style=flat-square)](https://goreportcard.com/report/github.com/omar-h/snorlax)
+![Powered By](https://img.shields.io/badge/powered%20by-go-blue.svg?style=flat-square)
+[![License](https://img.shields.io/badge/license-MIT%20License-1abc9c.svg?style=flat-square)](https://github.com/omar-h/snorlax/blob/master/LICENSE)
+
+Snorlax is yet another modular Discord bot, with loads of built in modules.
 
 **This is still in early development, therefore it is subject to frequent breaking changes and rewrites.**
 
