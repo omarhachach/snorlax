@@ -65,7 +65,7 @@ func helpInit(s *Snorlax) {
 			commandPages = append(commandPages, &discordgo.MessageEmbed{
 				Color: InfoColor,
 				Fields: []*discordgo.MessageEmbedField{
-					&discordgo.MessageEmbedField{
+					{
 						Name:   "Command - Description",
 						Value:  "",
 						Inline: false,
@@ -93,7 +93,7 @@ func helpInit(s *Snorlax) {
 	helpModules = &discordgo.MessageEmbed{
 		Color: InfoColor,
 		Fields: []*discordgo.MessageEmbedField{
-			&discordgo.MessageEmbedField{
+			{
 				Name:   "Module Name - Description",
 				Value:  helpModuleList,
 				Inline: false,
@@ -136,7 +136,7 @@ func helpHandler(ctx *Context) {
 		ctx.SendEmbed(&discordgo.MessageEmbed{
 			Color: InfoColor,
 			Fields: []*discordgo.MessageEmbedField{
-				&discordgo.MessageEmbedField{
+				{
 					Name:   "Command Usage",
 					Value:  command.Usage,
 					Inline: false,
@@ -179,7 +179,7 @@ func helpHandler(ctx *Context) {
 var aboutEmbed = &discordgo.MessageEmbed{
 	Color: InfoColor,
 	Fields: []*discordgo.MessageEmbedField{
-		&discordgo.MessageEmbedField{
+		{
 			Name: "About",
 			Value: "Hi, I'm Snorlax, a general purpose bot written in Go.\n\n" +
 				"I am developed by Omar H., and I am open-source!\n" +

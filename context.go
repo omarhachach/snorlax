@@ -43,7 +43,7 @@ func (ctx Context) SendMessage(color int, title, format string, a ...interface{}
 	messageEmbed := &discordgo.MessageEmbed{
 		Color: color,
 		Fields: []*discordgo.MessageEmbedField{
-			&discordgo.MessageEmbedField{
+			{
 				Name:  title,
 				Value: fmt.Sprintf(format, a...),
 			},
