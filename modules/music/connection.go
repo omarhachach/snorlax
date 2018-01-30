@@ -39,7 +39,7 @@ func NewConnection(voice *discordgo.VoiceConnection, opts *dca.EncodeOptions) *C
 
 // StreamMusic will create a new encode session from the current DownloadURL
 // and stream that to the VoiceConnection.
-// Will block untill queue is empty.
+// Will block until queue is empty.
 func (c *Connection) StreamMusic() error {
 	length := len(c.Queue)
 	for i := 0; i < length; i++ {
