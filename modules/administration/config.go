@@ -45,7 +45,11 @@ func autoDelHandler(ctx *snorlax.Context) {
 	ctx.Snorlax.Config.AutoDelete = !ctx.Snorlax.Config.AutoDelete
 	ctx.Snorlax.Mutex.Unlock()
 
-	ctx.SendSuccessMessage("AutoDelete has successfully been set to %v!", ctx.Snorlax.Config.AutoDelete)
+	if ctx.Snorlax.Config.AutoDelete {
+		ctx.SendSuccessMessage("AutoDelete has been turned on.")
+	} else {
+		ctx.SendSuccessMessage("AutoDelete has been turned off.")
+	}
 
 	err := ctx.Snorlax.Config.UpdateFile()
 	if err != nil {
@@ -69,7 +73,11 @@ func debugHandler(ctx *snorlax.Context) {
 	}
 	ctx.Snorlax.Mutex.Unlock()
 
-	ctx.SendSuccessMessage("Debug mode has successfully been set to %v!", ctx.Snorlax.Config.Debug)
+	if ctx.Snorlax.Config.Debug {
+		ctx.SendSuccessMessage("Debug mode has been turned on.")
+	} else {
+		ctx.SendSuccessMessage("Debug mode has been turned off.")
+	}
 
 	err := ctx.Snorlax.Config.UpdateFile()
 	if err != nil {
@@ -88,7 +96,11 @@ func displayAuthorHandler(ctx *snorlax.Context) {
 	ctx.Snorlax.Config.DisplayAuthor = !ctx.Snorlax.Config.DisplayAuthor
 	ctx.Snorlax.Mutex.Unlock()
 
-	ctx.SendSuccessMessage("Display Author mode has successfully been set to %v!", ctx.Snorlax.Config.DisplayAuthor)
+	if ctx.Snorlax.Config.DisplayAuthor {
+		ctx.SendSuccessMessage("DisplayAuthor has been turned on.")
+	} else {
+		ctx.SendSuccessMessage("DisplayAuthor has been turned off.")
+	}
 
 	err := ctx.Snorlax.Config.UpdateFile()
 	if err != nil {

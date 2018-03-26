@@ -26,9 +26,13 @@ func playingHandler(ctx *snorlax.Context) {
 	}
 
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
-	if len(parts) != 2 {
+	if len(parts) <= 0 || len(parts) >= 3 {
 		ctx.Log.Debugf("Wrong number of args: %#v", parts)
 		return
+	}
+
+	if len(parts) == 1 {
+		parts = append(parts, "")
 	}
 
 	err := ctx.Session.UpdateStatus(0, parts[1])

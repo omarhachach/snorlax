@@ -25,14 +25,16 @@ const (
 	InfoColor    int = 2201331
 )
 
+var embedAuthor = &discordgo.MessageEmbedAuthor{
+	URL:     "https://www.snorlaxbot.com/",
+	Name:    "Snorlax v" + Version,
+	IconURL: "https://i.imgur.com/Hcoovug.png",
+}
+
 // SendEmbed sends a custom embed message.
 func (ctx Context) SendEmbed(embed *discordgo.MessageEmbed) (*discordgo.Message, error) {
 	if ctx.Snorlax.Config.DisplayAuthor && embed.Author == nil {
-		embed.Author = &discordgo.MessageEmbedAuthor{
-			URL:     "https://www.snorlaxbot.com/",
-			Name:    "Snorlax v" + Version,
-			IconURL: "https://i.imgur.com/Hcoovug.png",
-		}
+		embed.Author = embedAuthor
 	}
 
 	return ctx.Session.ChannelMessageSendEmbed(ctx.ChannelID, embed)

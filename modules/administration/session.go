@@ -25,4 +25,5 @@ func clearStateHandler(ctx *snorlax.Context) {
 	}
 
 	ctx.State = discordgo.NewState()
+	ctx.SendSuccessMessage("Successfully reset the discordgo state cache.")
 }
