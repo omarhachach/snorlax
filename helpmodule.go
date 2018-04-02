@@ -45,7 +45,7 @@ var (
 	helpModuleCommands = map[string][]*discordgo.MessageEmbed{}
 )
 
-func helpInit(s *Snorlax) {
+func helpInit(s *Snorlax) error {
 	botCommands = s.Commands
 
 	helpModuleList := ""
@@ -101,6 +101,8 @@ func helpInit(s *Snorlax) {
 		},
 		Footer: &discordgo.MessageEmbedFooter{},
 	}
+
+	return nil
 }
 
 var botCommands map[string]*Command

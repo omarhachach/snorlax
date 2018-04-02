@@ -102,16 +102,6 @@ func (s *Snorlax) Start() {
 	}
 	s.Session = discord
 
-	go func() {
-		s.Mutex.Lock()
-		for _, module := range s.Modules {
-			if module.Init != nil {
-				go module.Init(s)
-			}
-		}
-		s.Mutex.Unlock()
-	}()
-
 	s.Session.AddHandler(onMessageCreate(s))
 
 	err = s.Session.Open()
@@ -126,6 +116,20 @@ func (s *Snorlax) Start() {
 		s.Log.WithError(err).Fatal("Error initializing database tables.")
 		return
 	}
+
+	go func() {
+		s.Mutex.Lock()
+		defer s.Mutex.Unlock()
+		for _, module := range s.Modules {
+			if module.Init != nil {
+				err = module.Init(s)
+				if err != nil {
+					s.Log.WithError(err).Fatalf("%v failed to initialize.", module.Name)
+					return
+				}
+			}
+		}
+	}()
 
 	s.Log.Info("Snorlax has been woken!")
 }

@@ -6,7 +6,7 @@ type Module struct {
 	Name     string
 	Desc     string
 	Commands map[string]*Command
-	Init     func(*Snorlax)
+	Init     func(*Snorlax) error
 }
 
 // Command holds the data and handler for a command.

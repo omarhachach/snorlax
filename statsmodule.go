@@ -11,7 +11,7 @@ import (
 )
 
 // This module is a conversion of the one from
-// https://github.com/iopred/bruxism.
+// https://github.com/iopred/bruxism/blob/master/statsplugin/statsplugin.go.
 
 func init() {
 	statsModule := &Module{
@@ -49,7 +49,7 @@ func getDuration(duration time.Duration) string {
 var statsMessage *discordgo.MessageEmbed
 var staticFields = []*discordgo.MessageEmbedField{}
 
-func statsInit(s *Snorlax) {
+func statsInit(s *Snorlax) error {
 	fields := map[string]string{
 		"Snorlax":   Version,
 		"Go":        runtime.Version(),
@@ -71,7 +71,9 @@ func statsInit(s *Snorlax) {
 		Fields: staticFields,
 	}
 
-	statsReload(s)
+	go statsReload(s)
+
+	return nil
 }
 
 func statsReload(s *Snorlax) {
