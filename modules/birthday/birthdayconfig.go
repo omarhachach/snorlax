@@ -13,6 +13,8 @@ func init() {
 		ModuleName: moduleName,
 		Handler:    setBirthdayConfigHandler,
 	}
+
+	commands[setBirthdayConfigCommand.Command] = setBirthdayConfigCommand
 }
 
 func setBirthdayConfigHandler(ctx *snorlax.Context) {

@@ -46,7 +46,7 @@ func birthdayInit(s *snorlax.Snorlax) {
 
 	err = models.BirthdayConfigInit(s.DB)
 	if err != nil {
-		s.Log.WithError(err).Error("Error initalizing birthday config init.")
+		s.Log.WithError(err).Error("Error initializing birthday config init.")
 	}
 
 	birthdayTimer(s)
