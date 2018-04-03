@@ -7,6 +7,7 @@ import (
 
 	"github.com/omar-h/snorlax"
 	"github.com/omar-h/snorlax/modules/administration"
+	"github.com/omar-h/snorlax/modules/birthday"
 	"github.com/omar-h/snorlax/modules/eval"
 	"github.com/omar-h/snorlax/modules/moderation"
 	"github.com/omar-h/snorlax/modules/music"
@@ -34,6 +35,7 @@ func main() {
 
 	bot.RegisterModules(
 		administration.GetModule(),
+		birthday.GetModule(),
 		eval.GetModule(),
 		moderation.GetModule(),
 		music.GetModule(),
