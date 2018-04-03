@@ -49,7 +49,7 @@ func getDuration(duration time.Duration) string {
 var statsMessage *discordgo.MessageEmbed
 var staticFields = []*discordgo.MessageEmbedField{}
 
-func statsInit(s *Snorlax) error {
+func statsInit(s *Snorlax) {
 	fields := map[string]string{
 		"Snorlax":   Version,
 		"Go":        runtime.Version(),
@@ -71,9 +71,9 @@ func statsInit(s *Snorlax) error {
 		Fields: staticFields,
 	}
 
-	go statsReload(s)
+	statsReload(s)
 
-	return nil
+	return
 }
 
 func statsReload(s *Snorlax) {

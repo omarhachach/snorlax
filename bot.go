@@ -122,11 +122,7 @@ func (s *Snorlax) Start() {
 		defer s.Mutex.Unlock()
 		for _, module := range s.Modules {
 			if module.Init != nil {
-				err = module.Init(s)
-				if err != nil {
-					s.Log.WithError(err).Fatalf("%v failed to initialize.", module.Name)
-					return
-				}
+				go module.Init(s)
 			}
 		}
 	}()
