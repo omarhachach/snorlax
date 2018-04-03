@@ -9,9 +9,9 @@ import (
 func InitCurrency(db *sql.DB) error {
 	_, err := db.Exec("CREATE TABLE IF NOT EXISTS `Currency` (" +
 		"`UserID` TEXT NOT NULL PRIMARY KEY UNIQUE," +
-		"`Amount` INTEGER NOT NULL," +
-		"`DateAdded` INTEGER NOT NULL" +
+		"`Amount` INTEGER NOT NULL" +
 		")")
+
 	if err != nil {
 		return err
 	}
@@ -23,6 +23,7 @@ func InitCurrency(db *sql.DB) error {
 		"`UserID` TEXT NOT NULL," +
 		"`DateAdded` INTEGER NOT NULL" +
 		")")
+
 	if err != nil {
 		return err
 	}
