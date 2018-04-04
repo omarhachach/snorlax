@@ -36,13 +36,13 @@ func GetBirthdayConfig(db *sql.DB, serverID string) (*BirthdayConfig, error) {
 		ServerID: serverID,
 	}
 
-	err := db.QueryRow("SELECT AssignRole,BirthdayRoleID FROM BirthdayConfigs WHERE serverID=?").Scan(&bdayConfig.AssignRole, &bdayConfig.BirthdayRoleID)
+	err := db.QueryRow("SELECT AssignRole,BirthdayRoleID FROM BirthdayConfigs WHERE serverID=?", bdayConfig.ServerID).Scan(&bdayConfig.AssignRole, &bdayConfig.BirthdayRoleID)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 
 	if err == sql.ErrNoRows {
-		return nil, ErrNoBirthdayFound
+		return nil, ErrNoBirthdayConfigFound
 	}
 
 	return bdayConfig, nil

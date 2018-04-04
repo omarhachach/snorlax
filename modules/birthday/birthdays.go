@@ -68,6 +68,19 @@ func giveBirthdayRoles(s *snorlax.Snorlax) {
 			continue
 		}
 
+		currBday := &models.CurrentBirthday{
+			UserID:         birthday.UserID,
+			ServerID:       birthday.ServerID,
+			Birthday:       birthday.Birthday,
+			BirthdayRoleID: bdayConfig.BirthdayRoleID,
+		}
+
+		err = currBday.Insert(s.DB)
+		if err != nil {
+			s.Log.WithError(err).Debug("Error inserting into CurrentBirthdays.")
+			return
+		}
+
 		s.Session.GuildMemberRoleAdd(birthday.ServerID, birthday.UserID, bdayConfig.BirthdayRoleID)
 	}
 }
@@ -90,7 +103,7 @@ func removeBirthdayRoles(s *snorlax.Snorlax) {
 		currBday := currBdays[i]
 
 		birthdaySlice := strings.Split(currBday.Birthday, "/")
-		if month != birthdaySlice[0] || strDay != birthdaySlice[1] {
+		if month == birthdaySlice[0] && strDay == birthdaySlice[1] {
 			continue
 		}
 
@@ -104,12 +117,6 @@ func removeBirthdayRoles(s *snorlax.Snorlax) {
 			s.Log.Errorf("No current birthday was found for %v.", currBday.UserID)
 		}
 
-		if len(currBday.ServerIDs) != len(currBday.BirthdayRoleIDs) {
-			s.Log.Errorf("Current birthday roleIDs and serverIDs don't match for user %v.", currBday.UserID)
-		}
-
-		for i := 0; i < len(currBday.ServerIDs); i++ {
-			s.Session.GuildMemberRoleRemove(currBday.ServerIDs[i], currBday.UserID, currBday.BirthdayRoleIDs[i])
-		}
+		s.Session.GuildMemberRoleRemove(currBday.ServerID, currBday.UserID, currBday.BirthdayRoleID)
 	}
 }

@@ -4,6 +4,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bwmarrin/discordgo"
+
 	"github.com/omar-h/snorlax"
 	"github.com/omar-h/snorlax/modules/birthday/models"
 	"github.com/omar-h/snorlax/utils"
@@ -46,7 +48,12 @@ func birthdayInit(s *snorlax.Snorlax) {
 
 	err = models.BirthdayConfigInit(s.DB)
 	if err != nil {
-		s.Log.WithError(err).Error("Error initializing birthday config init.")
+		s.Log.WithError(err).Error("Error initializing birthday config table.")
+	}
+
+	err = models.CurrentBirthdaysInit(s.DB)
+	if err != nil {
+		s.Log.WithError(err).Error("Error initializing CurrentBirthdays table.")
 	}
 
 	birthdayTimer(s)
@@ -55,7 +62,7 @@ func birthdayInit(s *snorlax.Snorlax) {
 
 // cachedDate provides the date which it was last time the birthdayTimer
 // function ran. This will make sure we don't run until it changes.
-var cachedDate = time.Now().Day()
+var cachedDate = 0
 
 func birthdayTimer(s *snorlax.Snorlax) {
 	day := time.Now().Day()
@@ -70,7 +77,7 @@ func birthdayTimer(s *snorlax.Snorlax) {
 	giveBirthdayRoles(s)
 	removeBirthdayRoles(s)
 
-	time.Sleep(1 * time.Hour)
+	time.Sleep(23 * time.Hour)
 	birthdayTimer(s)
 }
 
@@ -85,6 +92,17 @@ func setBirthdayHandler(ctx *snorlax.Context) {
 	if partsLen == 2 {
 		parts = append(parts, ctx.Message.Author.ID)
 	} else {
+		permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting user permissions.")
+			return
+		}
+
+		if permissions&discordgo.PermissionManageRoles == 0 {
+			ctx.SendErrorMessage("%v does not have permission to do this.", ctx.Message.Author.Mention())
+			return
+		}
+
 		parts[2] = utils.ExtractUserIDFromMention(parts[2])
 	}
 
@@ -124,6 +142,17 @@ func birthdayHandler(ctx *snorlax.Context) {
 	if partsLen == 1 {
 		parts = append(parts, ctx.Message.Author.ID)
 	} else {
+		permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting user permissions.")
+			return
+		}
+
+		if permissions&discordgo.PermissionManageRoles == 0 {
+			ctx.SendErrorMessage("%v does not have permission to do this.", ctx.Message.Author.Mention())
+			return
+		}
+
 		parts[2] = utils.ExtractUserIDFromMention(parts[2])
 	}
 
