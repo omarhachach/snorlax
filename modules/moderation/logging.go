@@ -14,8 +14,40 @@ var (
 	BanColor  = 12597547
 )
 
+// monthMap is a map of a month's int value to its name.
+var monthMap = map[int]string{
+	1:  "January",
+	2:  "Februar",
+	3:  "March",
+	4:  "April",
+	5:  "May",
+	6:  "June",
+	7:  "July",
+	8:  "August",
+	9:  "September",
+	10: "October",
+	11: "November",
+	12: "December",
+}
+
+// getTime will return a timestamp of the current time.
+func getTime() string {
+	now := time.Now().UTC()
+
+	day := strconv.Itoa(now.Day())
+	month := monthMap[int(now.Month())]
+	year := strconv.Itoa(now.Year())
+
+	hrInt, minInt, secInt := now.Clock()
+	hr := strconv.Itoa(hrInt)
+	min := strconv.Itoa(minInt)
+	sec := strconv.Itoa(secInt)
+
+	return day + " " + month + " " + year + " " + hr + ":" + min + ":" + sec + " UTC"
+}
+
 // SendLog will send a log message.
-func SendLog(s *discordgo.Session, color, points int, channel, reason, offender, caseType string) {
+func SendLog(s *discordgo.Session, color, points int, channel, reason, offender, caseType, imageURL string) {
 	s.ChannelMessageSendEmbed(channel, &discordgo.MessageEmbed{
 		Title: "CASE: " + caseType,
 		Color: color,
@@ -23,38 +55,43 @@ func SendLog(s *discordgo.Session, color, points int, channel, reason, offender,
 			{
 				Name:   "Offender",
 				Value:  offender,
-				Inline: false,
+				Inline: true,
 			},
 			{
 				Name:   "Issued At",
-				Value:  time.Now().String(),
-				Inline: false,
-			},
-			{
-				Name:   "Points",
-				Value:  strconv.Itoa(points),
-				Inline: false,
+				Value:  getTime(),
+				Inline: true,
 			},
 			{
 				Name:   "Reason",
 				Value:  reason,
-				Inline: false,
+				Inline: true,
 			},
+			{
+				Name:   "Points",
+				Value:  strconv.Itoa(points),
+				Inline: true,
+			},
+		},
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL:    imageURL,
+			Width:  128,
+			Height: 128,
 		},
 	})
 }
 
 // SendWarn will send a warning log message.
-func SendWarn(s *discordgo.Session, points int, channel, reason, offender string) {
-	SendLog(s, WarnColor, points, channel, reason, offender, "WARN")
+func SendWarn(s *discordgo.Session, points int, channel, reason, offender, imageURL string) {
+	SendLog(s, WarnColor, points, channel, reason, offender, "WARN", imageURL)
 }
 
 // SendKick will send a kick log message.
-func SendKick(s *discordgo.Session, points int, channel, reason, offender string) {
-	SendLog(s, KickColor, points, channel, reason, offender, "KICK")
+func SendKick(s *discordgo.Session, points int, channel, reason, offender, imageURL string) {
+	SendLog(s, KickColor, points, channel, reason, offender, "KICK", imageURL)
 }
 
 // SendBan will send a ban log message.
-func SendBan(s *discordgo.Session, points int, channel, reason, offender string) {
-	SendLog(s, BanColor, points, channel, reason, offender, "BAN")
+func SendBan(s *discordgo.Session, points int, channel, reason, offender, imageURL string) {
+	SendLog(s, BanColor, points, channel, reason, offender, "BAN", imageURL)
 }

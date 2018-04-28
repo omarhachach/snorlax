@@ -101,6 +101,26 @@ func banHandler(ctx *snorlax.Context) {
 		ctx.State.ChannelAdd(channel)
 	}
 
+	warnConfig, err := models.GetWarnConfig(ctx.Snorlax.DB, channel.GuildID)
+	if err != nil && err != models.ErrWarnConfigNotExist {
+		ctx.Log.WithError(err).Error("Error getting warning config.")
+		return
+	}
+
+	if err == models.ErrWarnConfigNotExist {
+		ctx.SendErrorMessage("Server doesn't have a warn config. See `.warnconfig` command.")
+		return
+	}
+
+	if warnConfig.LogWarn || warnConfig.LogKick || warnConfig.LogBan {
+		if warnConfig.LogChannelID == "" {
+			ctx.SendErrorMessage("Server doesn't have a log channel. See `.setlogchannel` command.")
+			return
+		}
+	}
+
+	points := 0
+
 	if ruleNr > 0 {
 		serverRules, err := models.GetServerRules(ctx.Snorlax.DB, channel.GuildID)
 		if err != nil && err != models.ErrServerRulesDontExist {
@@ -128,6 +148,8 @@ func banHandler(ctx *snorlax.Context) {
 			ctx.SendErrorMessage("Server doesn't have a rule with number %v.", ruleNr)
 			return
 		}
+
+		points = rule.Points
 
 		// If no reason has been specified, use rule description.
 		if reason == "" {
@@ -159,6 +181,16 @@ func banHandler(ctx *snorlax.Context) {
 		}
 	}
 
+	member, err := ctx.State.Member(channel.GuildID, userID)
+	if err != nil {
+		member, err = ctx.Session.GuildMember(channel.GuildID, userID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting guild member.")
+			return
+		}
+		ctx.State.MemberAdd(member)
+	}
+
 	err = ctx.Session.GuildBanCreateWithReason(channel.GuildID, userID, reason, 0)
 	if err != nil {
 		ctx.SendErrorMessage("Failed to ban %v.", parts[1])
@@ -166,7 +198,9 @@ func banHandler(ctx *snorlax.Context) {
 		return
 	}
 
-	ctx.SendSuccessMessage("%v has successfully been banned.", parts[1])
+	if warnConfig.LogBan {
+		SendBan(ctx.Session, points, warnConfig.LogChannelID, reason, "<@"+userID+">", member.User.AvatarURL(""))
+	}
 }
 
 func unbanHandler(ctx *snorlax.Context) {
@@ -279,6 +313,26 @@ func kickHandler(ctx *snorlax.Context) {
 		ctx.State.ChannelAdd(channel)
 	}
 
+	warnConfig, err := models.GetWarnConfig(ctx.Snorlax.DB, channel.GuildID)
+	if err != nil && err != models.ErrWarnConfigNotExist {
+		ctx.Log.WithError(err).Error("Error getting warning config.")
+		return
+	}
+
+	if err == models.ErrWarnConfigNotExist {
+		ctx.SendErrorMessage("Server doesn't have a warn config. See `.warnconfig` command.")
+		return
+	}
+
+	if warnConfig.LogWarn || warnConfig.LogKick || warnConfig.LogBan {
+		if warnConfig.LogChannelID == "" {
+			ctx.SendErrorMessage("Server doesn't have a log channel. See `.setlogchannel` command.")
+			return
+		}
+	}
+
+	points := 0
+
 	if ruleNr > 0 {
 		serverRules, err := models.GetServerRules(ctx.Snorlax.DB, channel.GuildID)
 		if err != nil && err != models.ErrServerRulesDontExist {
@@ -306,6 +360,8 @@ func kickHandler(ctx *snorlax.Context) {
 			ctx.SendErrorMessage("Server doesn't have a rule with number %v.", ruleNr)
 			return
 		}
+
+		points = rule.Points
 
 		// If no reason has been specified, use rule description.
 		if reason == "" {
@@ -338,6 +394,16 @@ func kickHandler(ctx *snorlax.Context) {
 		}
 	}
 
+	member, err := ctx.State.Member(channel.GuildID, userID)
+	if err != nil {
+		member, err = ctx.Session.GuildMember(channel.GuildID, userID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting guild member.")
+			return
+		}
+		ctx.State.MemberAdd(member)
+	}
+
 	err = ctx.Session.GuildMemberDeleteWithReason(channel.GuildID, userID, reason)
 	if err != nil {
 		ctx.SendErrorMessage("Couldn't kick %v.", parts[1])
@@ -345,7 +411,9 @@ func kickHandler(ctx *snorlax.Context) {
 		return
 	}
 
-	ctx.SendSuccessMessage("%v has successfully been kicked.", parts[1])
+	if warnConfig.LogKick {
+		SendKick(ctx.Session, points, warnConfig.LogChannelID, reason, "<@"+userID+">", member.User.AvatarURL(""))
+	}
 }
 
 func warnHandler(ctx *snorlax.Context) {
@@ -396,6 +464,26 @@ func warnHandler(ctx *snorlax.Context) {
 		ctx.State.ChannelAdd(channel)
 	}
 
+	warnConfig, err := models.GetWarnConfig(ctx.Snorlax.DB, channel.GuildID)
+	if err != nil && err != models.ErrWarnConfigNotExist {
+		ctx.Log.WithError(err).Error("Error getting warning config.")
+		return
+	}
+
+	if err == models.ErrWarnConfigNotExist {
+		ctx.SendErrorMessage("Server doesn't have a warn config. See `.warnconfig` command.")
+		return
+	}
+
+	if warnConfig.LogWarn || warnConfig.LogKick || warnConfig.LogBan {
+		if warnConfig.LogChannelID == "" {
+			ctx.SendErrorMessage("Server doesn't have a log channel. See `.setlogchannel` command.")
+			return
+		}
+	}
+
+	points := 0
+
 	if ruleNr > 0 {
 		serverRules, err := models.GetServerRules(ctx.Snorlax.DB, channel.GuildID)
 		if err != nil && err != models.ErrServerRulesDontExist {
@@ -423,6 +511,8 @@ func warnHandler(ctx *snorlax.Context) {
 			ctx.SendErrorMessage("Server doesn't have a rule with number %v.", ruleNr)
 			return
 		}
+
+		points = rule.Points
 
 		// If no reason has been specified, use rule description.
 		if reason == "" {
@@ -454,5 +544,17 @@ func warnHandler(ctx *snorlax.Context) {
 		}
 	}
 
-	ctx.SendSuccessMessage("%v has successfully been warned.", parts[1])
+	member, err := ctx.State.Member(channel.GuildID, userID)
+	if err != nil {
+		member, err = ctx.Session.GuildMember(channel.GuildID, userID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting guild member.")
+			return
+		}
+		ctx.State.MemberAdd(member)
+	}
+
+	if warnConfig.LogWarn {
+		SendWarn(ctx.Session, points, warnConfig.LogChannelID, reason, "<@"+userID+">", member.User.AvatarURL(""))
+	}
 }
