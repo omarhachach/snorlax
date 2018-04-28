@@ -139,8 +139,8 @@ func helpHandler(ctx *Context) {
 			Color: InfoColor,
 			Fields: []*discordgo.MessageEmbedField{
 				{
-					Name:   "Command Usage",
-					Value:  command.Usage,
+					Name:   "Command Help",
+					Value:  command.Desc + "\n\nUsage:\n`" + command.Usage + "`",
 					Inline: false,
 				},
 			},
