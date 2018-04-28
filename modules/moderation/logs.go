@@ -29,8 +29,8 @@ func setWarnChannelHandler(ctx *snorlax.Context) {
 		return
 	}
 
-	if permissions&discordgo.PermissionAdministrator != 0 {
-		ctx.SendErrorMessage("%v doesn't have permission to ban members.", ctx.Message.Author.Mention())
+	if permissions&discordgo.PermissionAdministrator == 0 {
+		ctx.SendErrorMessage("%v isn't an administrator.", ctx.Message.Author.Mention())
 		return
 	}
 

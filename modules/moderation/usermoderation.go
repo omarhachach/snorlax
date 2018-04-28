@@ -56,7 +56,7 @@ func banHandler(ctx *snorlax.Context) {
 		return
 	}
 
-	if permissions&discordgo.PermissionBanMembers != 0 {
+	if permissions&discordgo.PermissionBanMembers == 0 {
 		ctx.SendErrorMessage("%v doesn't have permission to ban members.", ctx.Message.Author.Mention())
 		return
 	}
