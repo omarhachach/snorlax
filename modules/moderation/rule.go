@@ -13,7 +13,7 @@ import (
 func init() {
 	addRule := &snorlax.Command{
 		Command:    ".addrule",
-		Usage:      ".addrule <rule> <points>",
+		Usage:      ".addrule <description> <points>",
 		Desc:       "Will add a rule to the server's rule list.",
 		ModuleName: moduleName,
 		Handler:    addRuleHandler,
@@ -58,8 +58,9 @@ func addRuleHandler(ctx *snorlax.Context) {
 		return
 	}
 
-	points, err := strconv.Atoi(parts[1])
+	points, err := strconv.Atoi(parts[2])
 	if err != nil {
+		ctx.Log.WithError(err).Debug("Error converting string to number.")
 		ctx.SendErrorMessage("Points isn't a valid number.")
 		return
 	}
@@ -77,7 +78,7 @@ func addRuleHandler(ctx *snorlax.Context) {
 	rule := &models.Rule{
 		Points:      points,
 		ServerID:    channel.GuildID,
-		Description: parts[2],
+		Description: parts[1],
 	}
 
 	err = rule.Insert(ctx.Snorlax.DB)
@@ -97,6 +98,12 @@ func addRuleHandler(ctx *snorlax.Context) {
 			ServerID: channel.GuildID,
 			RuleIDs:  []int{},
 		}
+
+		err = serverRules.Insert(ctx.Snorlax.DB)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error inserting server rules.")
+			return
+		}
 	}
 
 	err = serverRules.AddRule(ctx.Snorlax.DB, rule)
@@ -109,9 +116,129 @@ func addRuleHandler(ctx *snorlax.Context) {
 }
 
 func delRuleHandler(ctx *snorlax.Context) {
+	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
+	if err != nil {
+		ctx.Log.WithError(err).Debug("Error getting user permissions.")
+		return
+	}
 
+	if permissions&discordgo.PermissionAdministrator == 0 {
+		ctx.SendErrorMessage("%v is not an administrator.", ctx.Message.Author.Mention())
+		return
+	}
+
+	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
+	if len(parts) != 2 {
+		ctx.Log.Debugf("Wrong number of args: %#v", parts)
+		return
+	}
+
+	ruleNr, err := strconv.Atoi(parts[1])
+	if err != nil {
+		ctx.Log.WithError(err).Debug("Error converting string to number.")
+		ctx.SendErrorMessage("%v isn't a valid rule number.", parts[1])
+		return
+	}
+
+	if ruleNr <= 0 {
+		ctx.SendErrorMessage("Rule # has to be greater than 0.")
+		return
+	}
+
+	channel, err := ctx.State.Channel(ctx.ChannelID)
+	if err != nil {
+		channel, err = ctx.Session.Channel(ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting channel.")
+			return
+		}
+		ctx.State.ChannelAdd(channel)
+	}
+
+	serverRules, err := models.GetServerRules(ctx.Snorlax.DB, channel.GuildID)
+	if err != nil {
+		ctx.Log.WithError(err).Error("Error getting server rules.")
+		return
+	}
+
+	if ruleNr > len(serverRules.RuleIDs) {
+		ctx.SendErrorMessage("Rule #%v doesn't exist.", ruleNr)
+		return
+	}
+
+	// Make ruleIdx be pointing to the index of the rule, rather than the actual
+	// rule number.
+	ruleIdx := ruleNr - 1
+
+	err = serverRules.DelRule(ctx.Snorlax.DB, ruleIdx)
+	if err != nil && err != models.ErrRuleNotExist {
+		ctx.Log.WithError(err).Error("Error deleting rule.")
+		return
+	}
+
+	if err == models.ErrRuleNotExist {
+		ctx.SendErrorMessage("Rule %v doesn't exist.", ruleNr)
+		return
+	}
+
+	ctx.SendSuccessMessage("Successfully deleted rule %v.", ruleNr)
+}
+
+var embed = discordgo.MessageEmbed{
+	Color: snorlax.InfoColor,
+	Fields: []*discordgo.MessageEmbedField{
+		{
+			Name:   "Rule # - Description - Points",
+			Value:  "",
+			Inline: false,
+		},
+	},
+	Footer: &discordgo.MessageEmbedFooter{},
 }
 
 func rulesHandler(ctx *snorlax.Context) {
+	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
+	if len(parts) != 1 {
+		ctx.Log.Debugf("Wrong number of args: %#v", parts)
+		return
+	}
 
+	channel, err := ctx.State.Channel(ctx.ChannelID)
+	if err != nil {
+		channel, err = ctx.Session.Channel(ctx.ChannelID)
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting channel.")
+			return
+		}
+		ctx.State.ChannelAdd(channel)
+	}
+
+	serverRules, err := models.GetServerRules(ctx.Snorlax.DB, channel.GuildID)
+	if err != nil && err != models.ErrServerRulesDontExist {
+		ctx.Log.WithError(err).Error("Error getting server rules.")
+		return
+	}
+
+	if err == models.ErrServerRulesDontExist {
+		ctx.SendInfoMessage("Server doesn't have any rules.")
+		return
+	}
+
+	ruleValue := ""
+	for i := 0; i < len(serverRules.RuleIDs); i++ {
+		rule, err := models.GetRule(ctx.Snorlax.DB, serverRules.RuleIDs[i])
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error getting rule.")
+			return
+		}
+
+		ruleNr := strconv.Itoa(i + 1)
+		rulePoints := strconv.Itoa(rule.Points)
+
+		ruleValue = ruleValue + ruleNr + " - " + rule.Description + " - " + rulePoints + "\n"
+	}
+
+	rulesEmbed := embed
+	rulesEmbed.Fields[0].Value = ruleValue
+	ctx.SendEmbed(&rulesEmbed)
 }

@@ -53,7 +53,7 @@ var (
 	ErrServerRulesDontExist = errors.New("specified server rule list does not exist")
 )
 
-// GetRule will get a rule with a specifeid ID.
+// GetRule will get a rule with a specified ID.
 func GetRule(db *sql.DB, id int) (*Rule, error) {
 	row := db.QueryRow("SELECT * FROM Rules WHERE id=?", id)
 	rule := &Rule{}
@@ -67,6 +67,20 @@ func GetRule(db *sql.DB, id int) (*Rule, error) {
 	}
 
 	return rule, nil
+}
+
+// DelRule will delete a rule with a specified ID.
+func DelRule(db *sql.DB, id int) error {
+	_, err := db.Exec("DELETE FROM Rules WHERE ID=?", id)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if err == sql.ErrNoRows {
+		return ErrRuleNotExist
+	}
+
+	return nil
 }
 
 // Insert will insert the rule into the database.
@@ -84,10 +98,17 @@ func (rule *Rule) Insert(db *sql.DB) error {
 			return err
 		}
 
-		_, err = stmt.Exec(rule.Points, rule.Description, rule.ServerID)
+		res, err := stmt.Exec(rule.Points, rule.Description, rule.ServerID)
 		if err != nil {
 			return err
 		}
+
+		id, err := res.LastInsertId()
+		if err != nil {
+			return err
+		}
+
+		rule.ID = int(id)
 
 		return nil
 	}
@@ -97,7 +118,7 @@ func (rule *Rule) Insert(db *sql.DB) error {
 		return err
 	}
 
-	_, err = stmt.Exec(rule.Points, rule.Description)
+	_, err = stmt.Exec(rule.Points, rule.Description, rule.ID)
 	if err != nil {
 		return err
 	}
@@ -105,8 +126,17 @@ func (rule *Rule) Insert(db *sql.DB) error {
 	return nil
 }
 
+// serverRulesCache is the cached versions of the different server rules.
+// It is a map of serverID to *ServerRules.
+var serverRulesCache = map[string]*ServerRules{}
+
 // GetServerRules will get a list of server rules with a serverID.
 func GetServerRules(db *sql.DB, serverID string) (*ServerRules, error) {
+	serverRules, ok := serverRulesCache[serverID]
+	if ok {
+		return serverRules, nil
+	}
+
 	rulesStr := ""
 	err := db.QueryRow("SELECT RuleIDs FROM ServerRules WHERE serverID=?", serverID).Scan(&rulesStr)
 	if err != nil && err != sql.ErrNoRows {
@@ -120,6 +150,10 @@ func GetServerRules(db *sql.DB, serverID string) (*ServerRules, error) {
 	ruleListStr := strings.Split(rulesStr, ",")
 	ruleListInt := make([]int, 0, len(ruleListStr))
 	for i := 0; i < len(ruleListStr); i++ {
+		if ruleListStr[i] == "" {
+			break
+		}
+
 		ruleID, err := strconv.Atoi(ruleListStr[i])
 		if err != nil {
 			return nil, err
@@ -128,10 +162,13 @@ func GetServerRules(db *sql.DB, serverID string) (*ServerRules, error) {
 		ruleListInt = append(ruleListInt, ruleID)
 	}
 
-	return &ServerRules{
+	serverRules = &ServerRules{
 		ServerID: serverID,
 		RuleIDs:  ruleListInt,
-	}, nil
+	}
+
+	serverRulesCache[serverID] = serverRules
+	return serverRules, nil
 }
 
 // AddRule will add a rule to the list of rules.
@@ -150,21 +187,25 @@ func (serverRules *ServerRules) AddRule(db *sql.DB, rule *Rule) error {
 	return nil
 }
 
-// DelRule will remove a rule from the list of rules-
-func (serverRules *ServerRules) DelRule(db *sql.DB, ruleID int) error {
+// DelRule will remove a rule from the list of rules.
+func (serverRules *ServerRules) DelRule(db *sql.DB, ruleIdx int) error {
 	err := serverRules.UpdateServerRules(db)
 	if err != nil {
 		return err
 	}
 
-	for i := 0; i < len(serverRules.RuleIDs); i++ {
-		if serverRules.RuleIDs[i] == ruleID {
-			serverRules.RuleIDs = append(serverRules.RuleIDs[:i], serverRules.RuleIDs[i+1:]...)
-			return nil
-		}
+	err = DelRule(db, serverRules.RuleIDs[ruleIdx])
+	if err != nil {
+		return err
+	}
+	serverRules.RuleIDs = append(serverRules.RuleIDs[:ruleIdx], serverRules.RuleIDs[ruleIdx+1:]...)
+
+	err = serverRules.Insert(db)
+	if err != nil {
+		return err
 	}
 
-	return ErrServerDoesntHaveRule
+	return nil
 }
 
 // Insert will insert the server rules into the database.
@@ -176,17 +217,27 @@ func (serverRules *ServerRules) Insert(db *sql.DB) error {
 		return err
 	}
 
+	serverRulesStr := ""
+	for i := 0; i < len(serverRules.RuleIDs); i++ {
+		if i == len(serverRules.RuleIDs)-1 {
+			serverRulesStr += strconv.Itoa(serverRules.RuleIDs[i])
+		} else {
+			serverRulesStr += strconv.Itoa(serverRules.RuleIDs[i]) + ","
+		}
+	}
+
 	if err == sql.ErrNoRows {
 		stmt, err := db.Prepare("INSERT INTO ServerRules (ServerID, RuleIDs) values(?,?)")
 		if err != nil {
 			return err
 		}
 
-		_, err = stmt.Exec(serverRules.ServerID, serverRules.RuleIDs)
+		_, err = stmt.Exec(serverRules.ServerID, serverRulesStr)
 		if err != nil {
 			return err
 		}
 
+		serverRulesCache[serverRules.ServerID] = serverRules
 		return nil
 	}
 
@@ -195,11 +246,12 @@ func (serverRules *ServerRules) Insert(db *sql.DB) error {
 		return err
 	}
 
-	_, err = stmt.Exec(serverRules.RuleIDs, serverRules.ServerID)
+	_, err = stmt.Exec(serverRulesStr, serverRules.ServerID)
 	if err != nil {
 		return err
 	}
 
+	serverRulesCache[serverRules.ServerID] = serverRules
 	return nil
 }
 
@@ -218,6 +270,10 @@ func (serverRules *ServerRules) UpdateServerRules(db *sql.DB) error {
 	ruleListStr := strings.Split(rulesStr, ",")
 	ruleListInt := make([]int, 0, len(ruleListStr))
 	for i := 0; i < len(ruleListStr); i++ {
+		if ruleListStr[i] == "" {
+			break
+		}
+
 		ruleID, err := strconv.Atoi(ruleListStr[i])
 		if err != nil {
 			return err
@@ -227,5 +283,6 @@ func (serverRules *ServerRules) UpdateServerRules(db *sql.DB) error {
 	}
 
 	serverRules.RuleIDs = ruleListInt
+	serverRulesCache[serverRules.ServerID] = serverRules
 	return nil
 }
