@@ -52,7 +52,7 @@ func init() {
 func banHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
+		ctx.Log.WithError(err).Error("Error getting user permissions.")
 		return
 	}
 
@@ -171,7 +171,7 @@ func banHandler(ctx *snorlax.Context) {
 func unbanHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
+		ctx.Log.WithError(err).Error("Error getting user permissions.")
 		return
 	}
 
@@ -233,7 +233,7 @@ func unbanHandler(ctx *snorlax.Context) {
 func kickHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
+		ctx.Log.WithError(err).Error("Error getting user permissions.")
 		return
 	}
 
@@ -349,7 +349,7 @@ func kickHandler(ctx *snorlax.Context) {
 func warnHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
-		ctx.Log.WithError(err).Debug("Error getting user permissions.")
+		ctx.Log.WithError(err).Error("Error getting user permissions.")
 		return
 	}
 
