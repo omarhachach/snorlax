@@ -58,6 +58,7 @@ func banHandler(ctx *snorlax.Context) {
 
 	if permissions&discordgo.PermissionBanMembers != 0 {
 		ctx.SendErrorMessage("%v doesn't have permission to ban members.", ctx.Message.Author.Mention())
+		return
 	}
 
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
@@ -239,6 +240,7 @@ func kickHandler(ctx *snorlax.Context) {
 
 	if permissions&discordgo.PermissionKickMembers == 0 {
 		ctx.SendErrorMessage("%v doesn't have permission to kick members.", ctx.Message.Author.Mention())
+		return
 	}
 
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
@@ -355,6 +357,7 @@ func warnHandler(ctx *snorlax.Context) {
 
 	if permissions&discordgo.PermissionKickMembers == 0 {
 		ctx.SendErrorMessage("%v doesn't have permission to kick members.", ctx.Message.Author.Mention())
+		return
 	}
 
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
