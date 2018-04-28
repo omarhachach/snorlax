@@ -13,7 +13,19 @@ var (
 func moduleInit(s *snorlax.Snorlax) {
 	err := models.InitRule(s.DB)
 	if err != nil {
-		s.Log.WithError(err).Fatal("Error initializing moderation module.")
+		s.Log.WithError(err).Fatal("Error initializing rule tables.")
+		return
+	}
+
+	err = models.InitUsers(s.DB)
+	if err != nil {
+		s.Log.WithError(err).Fatal("Error initializing users tables.")
+		return
+	}
+
+	err = models.InitWarnConfig(s.DB)
+	if err != nil {
+		s.Log.WithError(err).Fatal("Error initializing warnconfig tables.")
 		return
 	}
 }
