@@ -87,7 +87,7 @@ func (warnConfig *WarnConfig) Insert(db *sql.DB) error {
 		return nil
 	}
 
-	stmt, err := db.Prepare("UPDATE ServerRules SET (LogChannelID, LogWarn, LogKick, LogBan) = (?,?,?,?) WHERE ServerID=?")
+	stmt, err := db.Prepare("UPDATE WarnConfigs SET (LogChannelID, LogWarn, LogKick, LogBan) = (?,?,?,?) WHERE ServerID=?")
 	if err != nil {
 		return err
 	}
