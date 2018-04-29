@@ -28,7 +28,7 @@ const (
 var embedAuthor = &discordgo.MessageEmbedAuthor{
 	URL:     "https://www.snorlaxbot.com/",
 	Name:    "Snorlax v" + Version,
-	IconURL: "https://i.imgur.com/Hcoovug.png",
+	IconURL: "https://i.imgur.com/AiyO3wt.png",
 }
 
 // SendEmbed sends a custom embed message.
