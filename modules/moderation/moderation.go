@@ -34,7 +34,7 @@ func moduleInit(s *snorlax.Snorlax) {
 func GetModule() *snorlax.Module {
 	return &snorlax.Module{
 		Name:     moduleName,
-		Desc:     "Eval contains multiple different eval commands.",
+		Desc:     "Moderation contains loads of moderation tools such as ban/kick/warn.",
 		Commands: commands,
 		Init:     moduleInit,
 	}

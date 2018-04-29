@@ -13,6 +13,7 @@ import (
 	"github.com/omar-h/snorlax/modules/music"
 	"github.com/omar-h/snorlax/modules/ping"
 	"github.com/omar-h/snorlax/modules/rolemanager"
+	"github.com/omar-h/snorlax/modules/utility"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,6 +42,7 @@ func main() {
 		music.GetModule(),
 		ping.GetModule(),
 		rolemanager.GetModule(),
+		utility.GetModule(),
 	)
 
 	bot.Start()
