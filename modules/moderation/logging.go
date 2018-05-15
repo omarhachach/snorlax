@@ -38,12 +38,7 @@ func getTime() string {
 	month := monthMap[int(now.Month())]
 	year := strconv.Itoa(now.Year())
 
-	hrInt, minInt, secInt := now.Clock()
-	hr := strconv.Itoa(hrInt)
-	min := strconv.Itoa(minInt)
-	sec := strconv.Itoa(secInt)
-
-	return day + " " + month + " " + year + " " + hr + ":" + min + ":" + sec + " UTC"
+	return day + " " + month + " " + year
 }
 
 // SendLog will send a log message.
@@ -58,8 +53,8 @@ func SendLog(s *discordgo.Session, color, points int, channel, reason, offender,
 				Inline: true,
 			},
 			{
-				Name:   "Issued At",
-				Value:  getTime(),
+				Name:   "Points",
+				Value:  strconv.Itoa(points),
 				Inline: true,
 			},
 			{
@@ -68,8 +63,8 @@ func SendLog(s *discordgo.Session, color, points int, channel, reason, offender,
 				Inline: true,
 			},
 			{
-				Name:   "Points",
-				Value:  strconv.Itoa(points),
+				Name:   "Issued At",
+				Value:  getTime(),
 				Inline: true,
 			},
 		},

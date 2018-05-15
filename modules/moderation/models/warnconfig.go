@@ -7,11 +7,14 @@ import (
 
 // WarnConfig is the server configuration for the warn/kick/ban logging.
 type WarnConfig struct {
-	ServerID     string
-	LogChannelID string
-	LogWarn      bool
-	LogKick      bool
-	LogBan       bool
+	ServerID         string
+	LogChannelID     string
+	LogWarn          bool
+	LogKick          bool
+	LogBan           bool
+	KickThreshold    int // Points to kick.
+	BanThreshold     int // Points to ban.
+	BanKickThreshold int // Kicks to ban.
 }
 
 // InitWarnConfig will intialize the tables for WarnConfigs.
@@ -21,7 +24,10 @@ func InitWarnConfig(db *sql.DB) error {
 		"`LogChannelID` TEXT," +
 		"`LogWarn` BOOLEAN," +
 		"`LogKick` BOOLEAN," +
-		"`LogBan` BOOLEAN" +
+		"`LogBan` BOOLEAN," +
+		"`KickThreshold` INTEGER," +
+		"`BanThreshold` INTEGER," +
+		"`BanKickThreshold` INTEGER" +
 		")")
 	if err != nil {
 		return err
@@ -50,7 +56,16 @@ func GetWarnConfig(db *sql.DB, serverID string) (*WarnConfig, error) {
 
 	warnConfig = &WarnConfig{}
 
-	err := row.Scan(&warnConfig.ServerID, &warnConfig.LogChannelID, &warnConfig.LogWarn, &warnConfig.LogKick, &warnConfig.LogBan)
+	err := row.Scan(
+		&warnConfig.ServerID,
+		&warnConfig.LogChannelID,
+		&warnConfig.LogWarn,
+		&warnConfig.LogKick,
+		&warnConfig.LogBan,
+		&warnConfig.KickThreshold,
+		&warnConfig.BanThreshold,
+		&warnConfig.BanKickThreshold,
+	)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
@@ -73,12 +88,21 @@ func (warnConfig *WarnConfig) Insert(db *sql.DB) error {
 	}
 
 	if err == sql.ErrNoRows {
-		stmt, err := db.Prepare("INSERT INTO WarnConfigs (ServerID, LogChannelID, LogWarn, LogKick, LogBan) values(?,?,?,?,?)")
+		stmt, err := db.Prepare("INSERT INTO WarnConfigs (ServerID, LogChannelID, LogWarn, LogKick, LogBan, KickThreshold, BanThreshold, BanKickThreshold) values(?,?,?,?,?,?,?,?)")
 		if err != nil {
 			return err
 		}
 
-		_, err = stmt.Exec(warnConfig.ServerID, warnConfig.LogChannelID, warnConfig.LogWarn, warnConfig.LogKick, warnConfig.LogBan)
+		_, err = stmt.Exec(
+			warnConfig.ServerID,
+			warnConfig.LogChannelID,
+			warnConfig.LogWarn,
+			warnConfig.LogKick,
+			warnConfig.LogBan,
+			warnConfig.KickThreshold,
+			warnConfig.BanThreshold,
+			warnConfig.BanKickThreshold,
+		)
 		if err != nil {
 			return err
 		}
@@ -87,12 +111,21 @@ func (warnConfig *WarnConfig) Insert(db *sql.DB) error {
 		return nil
 	}
 
-	stmt, err := db.Prepare("UPDATE WarnConfigs SET (LogChannelID, LogWarn, LogKick, LogBan) = (?,?,?,?) WHERE ServerID=?")
+	stmt, err := db.Prepare("UPDATE WarnConfigs SET (LogChannelID, LogWarn, LogKick, LogBan, KickThreshold, BanThreshold, BanKickThreshold) = (?,?,?,?,?,?,?) WHERE ServerID=?")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(warnConfig.LogChannelID, warnConfig.LogWarn, warnConfig.LogKick, warnConfig.LogBan, warnConfig.ServerID)
+	_, err = stmt.Exec(
+		warnConfig.LogChannelID,
+		warnConfig.LogWarn,
+		warnConfig.LogKick,
+		warnConfig.LogBan,
+		warnConfig.KickThreshold,
+		warnConfig.BanThreshold,
+		warnConfig.BanKickThreshold,
+		warnConfig.ServerID,
+	)
 	if err != nil {
 		return err
 	}

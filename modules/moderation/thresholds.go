@@ -4,35 +4,35 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/omar-h/snorlax/modules/moderation/models"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/modules/moderation/models"
 	"github.com/omar-h/snorlax/utils"
 )
 
 func init() {
-	setWarnChannel := &snorlax.Command{
-		Command:    ".setlogchannel",
-		Alias:      ".setlogchnl",
-		Desc:       "Will set the warn/kick/ban logging channel to the current one.",
-		Usage:      ".setlogchannel",
+	kickthreshold := &snorlax.Command{
+		Command:    ".kickthreshold",
+		Desc:       "Kick threshold will set the amount of points for a kick.",
+		Usage:      ".kickthreshold <points>",
 		ModuleName: moduleName,
-		Handler:    setWarnChannelHandler,
+		Handler:    kickthresholdHandler,
 	}
 
-	warnConfig := &snorlax.Command{
-		Command:    ".warnconfig",
-		Desc:       "Will configure the warn config for the server.",
-		Usage:      ".warnconfig <logwarn> <logkick> <logban>",
+	banthreshold := &snorlax.Command{
+		Command:    ".banthreshold",
+		Desc:       "Ban threshold will set the amount of points or kicks for a ban.",
+		Usage:      ".banthreshold <points> <kicks>",
 		ModuleName: moduleName,
-		Handler:    warnConfigHandler,
+		Handler:    banthresholdHandler,
 	}
 
-	commands[setWarnChannel.Command] = setWarnChannel
-	commands[warnConfig.Command] = warnConfig
+	commands[kickthreshold.Command] = kickthreshold
+	commands[banthreshold.Command] = banthreshold
 }
 
-func setWarnChannelHandler(ctx *snorlax.Context) {
+func kickthresholdHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Error("Error getting user permissions.")
@@ -40,14 +40,21 @@ func setWarnChannelHandler(ctx *snorlax.Context) {
 	}
 
 	if permissions&discordgo.PermissionAdministrator == 0 {
-		ctx.SendErrorMessage("%v isn't an administrator.", ctx.Message.Author.Mention())
+		ctx.SendErrorMessage("%v doesn't have permission to ban members.", ctx.Message.Author.Mention())
 		return
 	}
 
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 	partsLen := len(parts)
-	if partsLen != 1 {
+	if partsLen != 2 {
 		ctx.Log.Debugf("Wrong number of args: %#v", parts)
+		return
+	}
+
+	points, err := strconv.Atoi(parts[1])
+	if err != nil {
+		ctx.Log.WithError(err).Debug("Error converting string to int.")
+		ctx.SendErrorMessage("%v isn't a number.", parts[1])
 		return
 	}
 
@@ -80,18 +87,18 @@ func setWarnChannelHandler(ctx *snorlax.Context) {
 		}
 	}
 
-	warnConfig.LogChannelID = ctx.ChannelID
+	warnConfig.KickThreshold = points
 
 	err = warnConfig.Insert(ctx.Snorlax.DB)
 	if err != nil {
-		ctx.Log.WithError(err).Error("Error inserting warn config into DB.")
+		ctx.Log.WithError(err).Error("Error inserting warn config.")
 		return
 	}
 
-	ctx.SendSuccessMessage("Successfully set warn channel ID to %v!", ctx.ChannelID)
+	ctx.SendSuccessMessage("Successfully set kickthreshold to %v!", points)
 }
 
-func warnConfigHandler(ctx *snorlax.Context) {
+func banthresholdHandler(ctx *snorlax.Context) {
 	permissions, err := ctx.State.UserChannelPermissions(ctx.Message.Author.ID, ctx.ChannelID)
 	if err != nil {
 		ctx.Log.WithError(err).Error("Error getting user permissions.")
@@ -99,35 +106,28 @@ func warnConfigHandler(ctx *snorlax.Context) {
 	}
 
 	if permissions&discordgo.PermissionAdministrator == 0 {
-		ctx.SendErrorMessage("%v isn't an administrator.", ctx.Message.Author.Mention())
+		ctx.SendErrorMessage("%v doesn't have permission to ban members.", ctx.Message.Author.Mention())
 		return
 	}
 
 	parts := utils.GetStringFromQuotes(strings.Split(ctx.Message.Content, " "))
 	partsLen := len(parts)
-	if partsLen != 4 {
+	if partsLen != 3 {
 		ctx.Log.Debugf("Wrong number of args: %#v", parts)
 		return
 	}
 
-	logwarn, err := strconv.ParseBool(parts[1])
+	points, err := strconv.Atoi(parts[1])
 	if err != nil {
-		ctx.SendErrorMessage("%v isn't a boolean.")
-		ctx.Log.WithError(err).Debug("Error converting string to boolean.")
+		ctx.Log.WithError(err).Debug("Error converting string to int.")
+		ctx.SendErrorMessage("%v isn't a number.", parts[1])
 		return
 	}
 
-	logkick, err := strconv.ParseBool(parts[2])
+	kicks, err := strconv.Atoi(parts[2])
 	if err != nil {
-		ctx.SendErrorMessage("%v isn't a boolean.")
-		ctx.Log.WithError(err).Debug("Error converting string to boolean.")
-		return
-	}
-
-	logban, err := strconv.ParseBool(parts[3])
-	if err != nil {
-		ctx.SendErrorMessage("%v isn't a boolean.")
-		ctx.Log.WithError(err).Debug("Error converting string to boolean.")
+		ctx.Log.WithError(err).Debug("Error converting string to int.")
+		ctx.SendErrorMessage("%v isn't a number.", parts[2])
 		return
 	}
 
@@ -160,15 +160,14 @@ func warnConfigHandler(ctx *snorlax.Context) {
 		}
 	}
 
-	warnConfig.LogWarn = logwarn
-	warnConfig.LogKick = logkick
-	warnConfig.LogBan = logban
+	warnConfig.BanThreshold = points
+	warnConfig.BanKickThreshold = kicks
 
 	err = warnConfig.Insert(ctx.Snorlax.DB)
 	if err != nil {
-		ctx.Log.WithError(err).Error("Error inserting warn config into DB.")
+		ctx.Log.WithError(err).Error("Error inserting warn config.")
 		return
 	}
 
-	ctx.SendSuccessMessage("Successfully configured the warn config!")
+	ctx.SendSuccessMessage("Successfully set ban point threshold to %v and kick threshold to %v!", points, kicks)
 }

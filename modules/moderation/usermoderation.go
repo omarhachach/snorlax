@@ -91,6 +91,11 @@ func banHandler(ctx *snorlax.Context) {
 		return
 	}
 
+	if ruleNr == 0 && partsLen != 4 {
+		ctx.SendErrorMessage("If rule # is 0, a reason has to be specified.")
+		return
+	}
+
 	channel, err := ctx.State.Channel(ctx.ChannelID)
 	if err != nil {
 		channel, err = ctx.Session.Channel(ctx.ChannelID)
@@ -199,7 +204,7 @@ func banHandler(ctx *snorlax.Context) {
 	}
 
 	if warnConfig.LogBan {
-		SendBan(ctx.Session, points, warnConfig.LogChannelID, reason, "<@"+userID+">", member.User.AvatarURL(""))
+		SendBan(ctx.Session, points, warnConfig.LogChannelID, reason, member.User.Username+"#"+member.User.Discriminator, member.User.AvatarURL(""))
 	}
 }
 
@@ -285,7 +290,7 @@ func kickHandler(ctx *snorlax.Context) {
 	}
 
 	reason := ""
-	if len(parts) == 4 {
+	if partsLen == 4 {
 		reason = parts[3]
 	}
 
@@ -298,6 +303,11 @@ func kickHandler(ctx *snorlax.Context) {
 
 	if ruleNr < 0 {
 		ctx.SendErrorMessage("Rule # can't be less than 0.")
+		return
+	}
+
+	if ruleNr == 0 && partsLen != 4 {
+		ctx.SendErrorMessage("If rule # is 0, a reason has to be specified.")
 		return
 	}
 
@@ -392,6 +402,41 @@ func kickHandler(ctx *snorlax.Context) {
 			ctx.Log.WithError(err).Error("Error inserting user.")
 			return
 		}
+
+		threshCode, err := user.CheckThresholds(ctx.Snorlax.DB)
+		if err == models.ErrWarnConfigNotExist {
+			ctx.SendErrorMessage("No warn config has been set for this server. See .warnconfig command.")
+			return
+		}
+
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error checking user thresholds.")
+			return
+		}
+
+		if threshCode == 2 || threshCode == 3 {
+			member, err := ctx.State.Member(channel.GuildID, userID)
+			if err != nil {
+				member, err = ctx.Session.GuildMember(channel.GuildID, userID)
+				if err != nil {
+					ctx.Log.WithError(err).Error("Error getting guild member.")
+					return
+				}
+				ctx.State.MemberAdd(member)
+			}
+			reason = "Too many points."
+
+			user.Bans = user.Bans + 1
+			err = user.Insert(ctx.Snorlax.DB)
+			if err != nil {
+				ctx.Log.WithError(err).Error("Error inserting user.")
+				return
+			}
+
+			ctx.Session.GuildBanCreateWithReason(channel.GuildID, user.UserID, reason, 0)
+			SendBan(ctx.Session, points, warnConfig.LogChannelID, reason, member.User.Username+"#"+member.User.Discriminator, member.User.AvatarURL(""))
+			return
+		}
 	}
 
 	member, err := ctx.State.Member(channel.GuildID, userID)
@@ -412,7 +457,7 @@ func kickHandler(ctx *snorlax.Context) {
 	}
 
 	if warnConfig.LogKick {
-		SendKick(ctx.Session, points, warnConfig.LogChannelID, reason, "<@"+userID+">", member.User.AvatarURL(""))
+		SendKick(ctx.Session, points, warnConfig.LogChannelID, reason, member.User.Username+"#"+member.User.Discriminator, member.User.AvatarURL(""))
 	}
 }
 
@@ -449,6 +494,11 @@ func warnHandler(ctx *snorlax.Context) {
 
 	if ruleNr < 0 {
 		ctx.SendErrorMessage("Rule # can't be less than 0.")
+		return
+	}
+
+	if ruleNr == 0 && partsLen != 4 {
+		ctx.SendErrorMessage("If rule # is 0, a reason has to be specified.")
 		return
 	}
 
@@ -542,6 +592,55 @@ func warnHandler(ctx *snorlax.Context) {
 			ctx.Log.WithError(err).Error("Error inserting user.")
 			return
 		}
+
+		threshCode, err := user.CheckThresholds(ctx.Snorlax.DB)
+		if err == models.ErrWarnConfigNotExist {
+			ctx.SendErrorMessage("No warn config has been set for this server. See .warnconfig command.")
+			return
+		}
+
+		if err != nil {
+			ctx.Log.WithError(err).Error("Error checking user thresholds.")
+			return
+		}
+
+		ctx.Log.Debug(threshCode)
+		if threshCode > 0 {
+			member, err := ctx.State.Member(channel.GuildID, userID)
+			if err != nil {
+				member, err = ctx.Session.GuildMember(channel.GuildID, userID)
+				if err != nil {
+					ctx.Log.WithError(err).Error("Error getting guild member.")
+					return
+				}
+				ctx.State.MemberAdd(member)
+			}
+			reason = "Too many points."
+
+			if threshCode == 1 {
+				user.Kicks = user.Kicks + 1
+				err = user.Insert(ctx.Snorlax.DB)
+				if err != nil {
+					ctx.Log.WithError(err).Error("Error inserting user.")
+					return
+				}
+
+				ctx.Session.GuildMemberDeleteWithReason(channel.GuildID, user.UserID, reason)
+				SendKick(ctx.Session, points, warnConfig.LogChannelID, reason, member.User.Username+"#"+member.User.Discriminator, member.User.AvatarURL(""))
+				return
+			}
+
+			user.Bans = user.Bans + 1
+			err = user.Insert(ctx.Snorlax.DB)
+			if err != nil {
+				ctx.Log.WithError(err).Error("Error inserting user.")
+				return
+			}
+
+			ctx.Session.GuildBanCreateWithReason(channel.GuildID, user.UserID, reason, 0)
+			SendBan(ctx.Session, points, warnConfig.LogChannelID, reason, member.User.Username+"#"+member.User.Discriminator, member.User.AvatarURL(""))
+			return
+		}
 	}
 
 	member, err := ctx.State.Member(channel.GuildID, userID)
@@ -555,6 +654,6 @@ func warnHandler(ctx *snorlax.Context) {
 	}
 
 	if warnConfig.LogWarn {
-		SendWarn(ctx.Session, points, warnConfig.LogChannelID, reason, "<@"+userID+">", member.User.AvatarURL(""))
+		SendWarn(ctx.Session, points, warnConfig.LogChannelID, reason, member.User.Username+"#"+member.User.Discriminator, member.User.AvatarURL(""))
 	}
 }
