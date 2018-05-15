@@ -604,7 +604,6 @@ func warnHandler(ctx *snorlax.Context) {
 			return
 		}
 
-		ctx.Log.Debug(threshCode)
 		if threshCode > 0 {
 			member, err := ctx.State.Member(channel.GuildID, userID)
 			if err != nil {
