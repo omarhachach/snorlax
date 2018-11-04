@@ -1,7 +1,7 @@
 package gambling
 
 import (
-	"github.com/omar-h/snorlax"
+	"github.com/omarhachach/snorlax"
 )
 
 var (

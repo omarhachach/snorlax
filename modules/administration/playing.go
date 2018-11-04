@@ -3,8 +3,8 @@ package administration
 import (
 	"strings"
 
-	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/utils"
+	"github.com/omarhachach/snorlax"
+	"github.com/omarhachach/snorlax/utils"
 )
 
 func init() {

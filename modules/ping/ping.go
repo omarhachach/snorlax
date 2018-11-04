@@ -3,7 +3,7 @@ package ping
 import (
 	"time"
 
-	"github.com/omar-h/snorlax"
+	"github.com/omarhachach/snorlax"
 )
 
 var (

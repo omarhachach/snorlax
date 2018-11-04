@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/omar-h/snorlax/utils"
+	"github.com/omarhachach/snorlax/utils"
 )
 
 func init() {
@@ -185,7 +185,7 @@ var aboutEmbed = &discordgo.MessageEmbed{
 			Name: "About",
 			Value: "Hi, I'm Snorlax, a general purpose bot written in Go.\n\n" +
 				"I am developed by Omar H., and I am open-source!\n" +
-				"Support my development by contributing: https://github.com/omar-h/snorlax\n\n" +
+				"Support my development by contributing: https://github.com/omarhachach/snorlax\n\n" +
 				"Thank you very much :D",
 		},
 	},

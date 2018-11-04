@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/modules/birthday/models"
+	"github.com/omarhachach/snorlax"
+	"github.com/omarhachach/snorlax/modules/birthday/models"
 )
 
 // monthMap maps the month name to the numerical value.

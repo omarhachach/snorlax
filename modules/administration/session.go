@@ -2,7 +2,7 @@ package administration
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/omar-h/snorlax"
+	"github.com/omarhachach/snorlax"
 )
 
 func init() {

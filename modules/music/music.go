@@ -8,8 +8,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
-	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/utils"
+	"github.com/omarhachach/snorlax"
+	"github.com/omarhachach/snorlax/utils"
 )
 
 var (

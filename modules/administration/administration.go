@@ -1,7 +1,7 @@
 package administration
 
 import (
-	"github.com/omar-h/snorlax"
+	"github.com/omarhachach/snorlax"
 )
 
 var (

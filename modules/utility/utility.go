@@ -1,7 +1,7 @@
 package utility
 
 import (
-	"github.com/omar-h/snorlax"
+	"github.com/omarhachach/snorlax"
 )
 
 var (

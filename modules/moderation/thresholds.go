@@ -4,11 +4,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/omar-h/snorlax/modules/moderation/models"
+	"github.com/omarhachach/snorlax/modules/moderation/models"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/utils"
+	"github.com/omarhachach/snorlax"
+	"github.com/omarhachach/snorlax/utils"
 )
 
 func init() {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/omar-h/snorlax"
+	"github.com/omarhachach/snorlax"
 	"github.com/robertkrimen/otto"
 )
 

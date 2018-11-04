@@ -3,7 +3,7 @@ package eval
 import (
 	"strings"
 
-	"github.com/omar-h/snorlax"
+	"github.com/omarhachach/snorlax"
 	"github.com/robertkrimen/otto"
 )
 

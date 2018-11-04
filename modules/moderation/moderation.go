@@ -1,8 +1,8 @@
 package moderation
 
 import (
-	"github.com/omar-h/snorlax"
-	"github.com/omar-h/snorlax/modules/moderation/models"
+	"github.com/omarhachach/snorlax"
+	"github.com/omarhachach/snorlax/modules/moderation/models"
 )
 
 var (

@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/omar-h/snorlax/models"
+	"github.com/omarhachach/snorlax/models"
 	"github.com/sirupsen/logrus"
 )
 
