@@ -1,4 +1,4 @@
-# Snorlax
+# Snorlax - See [bear](https://github.com/omarhachach/bear) for a better bot. (Rework)
 [![GitHub tag](https://img.shields.io/github/release/omarhachach/snorlax.svg?style=flat-square)](https://github.com/omarhachach/snorlax/releases)
 [![Report Card](https://img.shields.io/badge/report%20card-a%2B-c0392b.svg?style=flat-square)](https://goreportcard.com/report/github.com/omarhachach/snorlax)
 [![Documentation](https://img.shields.io/badge/documentation-godoc-1abc9c.svg?style=flat-square)](https://godoc.org/github.com/omarhachach/snorlax)
